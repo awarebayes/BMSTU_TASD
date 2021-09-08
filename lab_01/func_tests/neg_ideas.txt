@@ -1,0 +1,8 @@
+'9'*31 # err too long
+'9'*29 + ' ' # ok
+' ' * 3 + '9'*27 # ok
+'9'*29 + 'a' # err bad char
+'9'*14 + 'a' # err bad char
+'9'*3 + 'a' + '9' * 3 # err bad char
+123a123
+123a
