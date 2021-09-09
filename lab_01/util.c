@@ -14,7 +14,9 @@ int n_digits(int n)
 
 void clear_lc(char *s)
 {
-    *(s + strcspn(s, "\n\r")) = '\0';
+    size_t index = strcspn(s, "\n\r");
+    if (index < strlen(s))
+        *(s + index) = '\0';
 }
 
 void ignore_whitespace(char **s)
@@ -46,6 +48,8 @@ void strdel(char *begin, int index)
 
 int no_bad_chars(char *s)
 {
+    if (*s == '-' || *s == '+')
+        s++;
     while (isdigit(*s))
         s++;
     while (isspace(*s))

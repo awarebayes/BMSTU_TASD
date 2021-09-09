@@ -13,5 +13,7 @@ typedef struct
 
 void bf_print(big_float_t *b);
 big_float_t bf_read(int *ec);
+big_float_t bf_sread(char *buf, int *ec);
+int bf_exact_eq(big_float_t *a, big_float_t *b);
 
 #endif

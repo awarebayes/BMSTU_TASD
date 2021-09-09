@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define BUF_SIZE 64
 
+
 big_int_t bi_read(int *ec)
 {
-    char buf_arr[BUF_SIZE] = {0};
-    char *buf = buf_arr;
-
+    char buf[BUF_SIZE] = {0};
     fgets(buf, BUF_SIZE, stdin);
     // may be a problem here
     return bi_sread(buf, ec);
@@ -22,9 +22,12 @@ big_int_t bi_sread(char *buf, int *ec)
 
     clear_lc(buf);
     ignore_whitespace(&buf);
+    if (strlen(buf) == 0)
+        *ec = read_err;
+
     while (*buf == '0')
         buf++;
-        
+
     if (*buf == '+' || *buf == '-')
     {
         self.sign = (*buf == '-');
@@ -33,11 +36,11 @@ big_int_t bi_sread(char *buf, int *ec)
 
     if (!no_bad_chars(buf))
     {
-        *ec = bad_chars_err;
+        *ec = read_err;
         return self;
     }
 
-    int buf_len = strlen(buf);
+    int buf_len = n_char_digits(buf);
 
     if (buf_len > MAX_BI_CHAR)
     {
@@ -45,16 +48,21 @@ big_int_t bi_sread(char *buf, int *ec)
         return self;
     }
 
-    if (buf_len < N_CHARS_PART) // one part
+    if (buf_len <= N_CHARS_PART) // one part
     {
         sscanf(buf, "%ld", &self.p2);
     }
     else  // two parts
     {
-        char *offset = buf + buf_len - N_CHARS_PART;
-        sscanf(offset, "%ld", &self.p2);
-        *offset = '\0';
-        sscanf(buf, "%ld", &self.p1);
+        int offset = buf_len - N_CHARS_PART;
+        sscanf(buf + offset, "%ld", &self.p2);
+        // idk why but
+        // buf + offset = '\0'
+        // gives segfault
+        char *temp = malloc(sizeof(char) * BUF_SIZE);
+        strncpy(temp, buf, offset);
+        sscanf(temp, "%ld", &self.p1);
+        free(temp);
     }
     
     return self;
@@ -75,13 +83,19 @@ void bi_print(big_int_t *self)
 {
     char buf[64];
     bi_sprint(self, buf);
-    printf("%s", buf);
+    printf("%s\n", buf);
 }
 
 // p1 larger then p2
 // p1 smaller then p2
 int bi_cmp(big_int_t *self, big_int_t *other)
 {
+    if (self->sign != other->sign)
+    {
+        if (!self->sign && other->sign)
+            return lg;
+        return sm;
+    }
     if (self->p1 > other->p1)
         return lg;
     else if (self->p1 < other -> p1)
@@ -120,12 +134,37 @@ big_int_t bi_sum(big_int_t *self, big_int_t *other, int *ec)
     return res;
 }
 
-/*
+big_int_t bi_lshift(big_int_t *self, int *ec)
+{
+    big_int_t res = *self;
+    res.p2 *= 10;
+    int carry = 0;
+    if (res.p2 > MAX_PART)
+    {
+        carry = res.p2 / DIGIT_BORROW;
+        res.p2 %= DIGIT_BORROW;
+    }
+    res.p1 *= 10;
+    res.p1 += carry;
+    if (res.p1 > MAX_PART)
+        *ec = overflow_err;
+    return res;
+}
+
+big_int_t bi_rshift(big_int_t *self)
+{
+    big_int_t res = *self;
+    res.p2 /= 10;
+    int carry = res.p1 % 10;
+    res.p1 /= 10;
+    res.p2 += (DIGIT_BORROW / 10) * carry;
+    return res;
+}
+
 big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
 {
     // todo add sign handling
     big_int_t res = *self;
-    int need_invert = 0;
     res.p2 = self->p2 - other->p2;
 
     if (!self->p1 && !other->p1)
@@ -140,6 +179,7 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
     {
         if (res.p2 < 0)
         {
+            perror("Careful here it does not work");
             res.p2 += DIGIT_BORROW;
             res.p1 -= 1;
         }
@@ -153,11 +193,17 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
     }
     return res;
 }
-*/
 
-big_int_t bi_mul_dec(big_int_t *self, int *other, int *ec)
+big_int_t bi_mul_dec(big_int_t *self, int other, int *ec)
 {
     big_int_t res = {0};
+
+    if (!(other >= 0 && !self->sign))
+    {
+        perror("Unhandled short mul dec");
+        *ec = bad_internal_op_err;
+    }
+
     res.p2 = self->p2 * (int64_t)other;
     if (res.p2 < 0)
         *ec = overflow_err;
@@ -171,6 +217,36 @@ big_int_t bi_mul_dec(big_int_t *self, int *other, int *ec)
         res.p1 += carry;
         if (res.p1 > MAX_PART)
             *ec = overflow_err;
+    }
+
+    return res;
+}
+
+int get_first_digit(big_int_t *self, int *ended)
+{
+    if (self->p1 == 0 && self->p2 == 0)
+        *ended = 1;
+    return self->p2 % 10;
+}
+
+big_int_t bi_mul(big_int_t self, big_int_t by, int *ec)
+{
+    big_int_t res = {0};
+    big_int_t temp = {0};
+
+    if (!(!by.sign  && !self.sign))
+    {
+        perror("Unhandleded long mul dec\n");
+        *ec = bad_internal_op_err;
+    }
+
+    int by_ended = 0;
+    while (!by_ended && !(*ec))
+    {
+        temp = bi_mul_dec(&self, get_first_digit(&by, &by_ended), ec);
+        res = bi_sum(&res, &temp, ec);
+        by = bi_rshift(&by);
+        self  = bi_lshift(&self, ec);
     }
 
     return res;
