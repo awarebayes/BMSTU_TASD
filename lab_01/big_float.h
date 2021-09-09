@@ -1,12 +1,17 @@
 #ifndef __BIG_FLOAT__
 #define __BIG_FLOAT__
 
-#include "utils.h"
+#include "big_int.h"
 
-typedef struct big_float_t
+#define MAX_EXP 99999
+
+typedef struct
 {
-    /* data */
-};
+    big_int_t m;
+    int32_t exp;
+} big_float_t;
 
+void bf_print(big_float_t *b);
+big_float_t bf_read(int *ec);
 
 #endif

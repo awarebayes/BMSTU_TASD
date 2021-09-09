@@ -1,3 +1,4 @@
+// int
 '9'*31 # err too long
 '9'*29 + ' ' # ok
 ' ' * 3 + '9'*27 # ok
@@ -6,3 +7,9 @@
 '9'*3 + 'a' + '9' * 3 # err bad char
 123a123
 123a
+
+// float negative
++3 E abcd
++3 E 999999999
+'9'*40
+

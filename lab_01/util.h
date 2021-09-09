@@ -1,21 +1,30 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
+
+
 enum errors
 {
     ok,
     num_too_long_err,
     bad_chars_err,
     overflow_err,
+    bad_internal_op_err,
+    read_err,
 };
 
-#include <limits.h>		/* for CHAR_BIT */
+enum ord
+{
+    eq,
+    lg,
+    sm,
+};
 
-#define BITMASK(b) (1 << ((b) % CHAR_BIT))
-#define BITSLOT(b) ((b) / CHAR_BIT)
-#define BITSET(a, b) ((a)[BITSLOT(b)] |= BITMASK(b))
-#define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
-#define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
-#define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
+int n_digits(int n);
+void clear_lc(char *s);
+void ignore_whitespace(char **s);
+int n_char_digits(char *s);
+void strdel(char *begin, int index);
+int no_bad_chars(char *s);
 
 #endif
