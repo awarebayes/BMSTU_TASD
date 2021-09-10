@@ -14,6 +14,10 @@ typedef struct
 void bf_print(big_float_t *b);
 big_float_t bf_read(int *ec);
 big_float_t bf_sread(char *buf, int *ec);
+big_float_t bf_sum(big_float_t *a, big_float_t *b);
+big_float_t bf_sub(big_float_t *a, big_float_t *b);
+big_float_t bf_mul(big_float_t *self, big_float_t *other, int *ec);
+void bf_normalize(big_float_t *self);
 int bf_exact_eq(big_float_t *a, big_float_t *b);
 
 #endif

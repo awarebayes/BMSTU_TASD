@@ -21,6 +21,8 @@ big_float_t bf_sread(char *buf, int *ec)
     clear_lc(buf);
     ignore_whitespace(&buf);
 
+    char *old_buf_ptr = buf;
+
     if (strlen(buf) == 0)
         *ec = read_err;
 
@@ -41,6 +43,10 @@ big_float_t bf_sread(char *buf, int *ec)
     while (*buf == '0')
         buf++;
 
+    if (*buf == '-' || *buf == '+')
+        buf++;
+
+    //self.exp += n_char_digits(buf);
     // mantissa dot processing
     char *dot_ptr = strchr(buf, '.');
     if (dot_ptr != NULL)
@@ -49,13 +55,12 @@ big_float_t bf_sread(char *buf, int *ec)
         self.exp -= to_add_exp;
         strdel(buf, dot_ptr - buf);
     }
-    self.exp += n_char_digits(buf);
 
     if (self.exp > MAX_EXP || self.exp < -MAX_EXP)
         *ec = num_too_long_err;
 
     // mantissa w/o dot
-    self.m = bi_sread(buf, ec);
+    self.m = bi_sread(old_buf_ptr, ec);
 
     return self;
 }
@@ -68,7 +73,7 @@ void bf_print(big_float_t *b)
     printf("%c0.%s E %s%d\n", *mantissa, mantissa+1, b->exp > 0 ? "+" : "", b->exp);
 }
 
-void bf_minmax_exp(big_float_t *min, big_float_t *max)
+void bf_minmax_exp(big_float_t *min, big_float_t *max, int *swap_flag)
 {
     big_float_t temp;
     if (min->exp > max->exp)
@@ -76,19 +81,20 @@ void bf_minmax_exp(big_float_t *min, big_float_t *max)
         temp = *min;
         *min = *max;
         *max = temp;
+        *swap_flag = 1;
     }
-
 }
 
 void bf_normalize_max(big_float_t *a, big_float_t *b, int *ec)
 {
-    bf_minmax_exp(a, b); // b > a
-    big_float_t b_copy = *a;
+    int swap_flag = 0;
+    bf_minmax_exp(a, b, &swap_flag); // b > a
+    big_float_t b_copy = *b;
 
     while (a->exp != b->exp)
     {
         b->exp--;
-        bi_lshift(&b->m, ec);
+        b->m = bi_lshift(&b->m, ec);
     }
     if (*ec == overflow_err)
         *b = b_copy;
@@ -98,8 +104,8 @@ big_float_t bf_sum(big_float_t *a, big_float_t *b)
 {
     int ec = 0;
     big_float_t res = {0};
-
-    bf_minmax_exp(a, b);
+    int swap_flag = 0;
+    bf_minmax_exp(a, b, &swap_flag);
     bf_normalize_max(a, b, &ec);
     if (ec == overflow_err)
     {
@@ -108,10 +114,73 @@ big_float_t bf_sum(big_float_t *a, big_float_t *b)
     }
 
     // a == b on scale
-    res.m = bi_sum(&a->m, &b->m, ec);
+    res.m = bi_sum(&a->m, &b->m, &ec);
+    res.exp = a->exp;
     if (ec == overflow_err)
-    // todo rounding
+    {
+        // rounding
+        int round = res.m.p2 % 10 > 5;
         res.m = bi_rshift(&res.m);
+        res.m.p2 += round;
+    }
+    bf_normalize(&res);
+    return res;
+}
+
+big_float_t bf_sub(big_float_t *a, big_float_t *b)
+{
+    int swap_flag = 0;
+    int ec = 0;
+    big_float_t res = {0};
+
+    bf_minmax_exp(a, b, &swap_flag);
+    bf_normalize_max(a, b, &ec);
+    if (ec == overflow_err)
+    {
+        ec = ok;
+        return *b; // a is too small
+    }
+
+    // a == b on scale
+    res.m = bi_sub(&a->m, &b->m, &ec);
+    res.exp = a->exp;
+    if (ec == overflow_err)
+    {
+        // rounding
+        int round = res.m.p2 % 10 > 5;
+        res.m = bi_rshift(&res.m);
+        res.m.p2 += round;
+    }
+    bf_normalize(&res);
+    if (swap_flag)
+        res.m.sign = !res.m.sign;
+    return res;
+}
+
+void bf_normalize(big_float_t *self)
+{
+
+    if (bi_zero(&self->m))
+        self->exp = 0;
+    while (self->m.p2 % 10 == 0 && self->m.p2 != 0)
+    {
+        self->m = bi_rshift(&self->m);
+        self->exp++;
+    }
+}
+
+big_float_t bf_mul(big_float_t *self, big_float_t *other, int *ec)
+{
+    big_float_t res = {0};
+    res.exp = self->exp + other->exp;
+
+    int overflow = 0;
+    res.m = bi_mul(self->m, other->m, ec, &overflow);
+
+    res.exp += overflow;
+    bf_normalize(&res);
+    if (res.exp < MAX_EXP && res.exp < -MAX_EXP)
+        *ec = overflow_err;
     return res;
 }
 

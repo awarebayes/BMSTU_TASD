@@ -109,16 +109,30 @@ int bi_cmp(big_int_t *self, big_int_t *other)
     return eq;
 }
 
+int bi_acmp(big_int_t *self, big_int_t *other)
+{
+    if (self->p1 > other->p1)
+        return lg;
+    else if (self->p1 < other -> p1)
+        return sm;
+    else {
+        if (self->p2 > other->p2)
+            return lg;
+        else if (self->p2 < other -> p2)
+            return sm;
+    }
+    return eq;
+}
+
 big_int_t bi_sum(big_int_t *self, big_int_t *other, int *ec)
 {
     big_int_t res = {0};
     if (self->sign != other->sign)
     {
-        //if (self->sign) // -3 + 4
-        //    return bi_sub(other, self, ec); // 4 - 3
-        //else // 4 - 3
-        //    return bi_sub(self, other, ec); // 4 - 3
-        perror("Multisign bad!\n");
+        if (self->sign) // -3 + 4
+            return bi_sub(other, self, ec); // 4 - 3
+        else // 4 - 3
+            return bi_sub(self, other, ec); // 4 - 3
     }
 
     res.p2 = self->p2 + other->p2;
@@ -163,8 +177,16 @@ big_int_t bi_rshift(big_int_t *self)
 
 big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
 {
+
+    big_int_t res = {0};
+    if (bi_acmp(self, other) == sm)
+    {
+        res = bi_sub(other, self, *ec);
+        res.sign = !res.sign;
+        return res;
+    }
     // todo add sign handling
-    big_int_t res = *self;
+    res.sign = self->sign;
     res.p2 = self->p2 - other->p2;
 
     if (!self->p1 && !other->p1)
@@ -179,12 +201,11 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
     {
         if (res.p2 < 0)
         {
-            perror("Careful here it does not work");
             res.p2 += DIGIT_BORROW;
             res.p1 -= 1;
         }
 
-        res.p1 = self->p1 - other->p1;
+        res.p1 += self->p1 - other->p1;
         if (res.p1 < 0)
         {
             res.p1 *= -1;
@@ -229,25 +250,62 @@ int get_first_digit(big_int_t *self, int *ended)
     return self->p2 % 10;
 }
 
-big_int_t bi_mul(big_int_t self, big_int_t by, int *ec)
+int mul_signs(big_int_t *self, big_int_t *other)
+{
+    if ((self->sign && other ->sign) || (!self->sign && !other->sign))
+    {
+        return 0;
+    }
+    return 1;
+}
+
+int bi_zero(big_int_t *self)
+{
+    return self->p1 == 0 && self->p2 == 0;
+}
+
+big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
 {
     big_int_t res = {0};
+    big_int_t temp_res = {0};
     big_int_t temp = {0};
 
-    if (!(!by.sign  && !self.sign))
+    int ignore_overflow_flag = 0;
+    if (overflow != NULL)
     {
-        perror("Unhandleded long mul dec\n");
-        *ec = bad_internal_op_err;
+        ignore_overflow_flag = 1;
+        *overflow = 0;
     }
+
+    int16_t sign = mul_signs(&self, &by);
 
     int by_ended = 0;
-    while (!by_ended && !(*ec))
-    {
-        temp = bi_mul_dec(&self, get_first_digit(&by, &by_ended), ec);
-        res = bi_sum(&res, &temp, ec);
-        by = bi_rshift(&by);
-        self  = bi_lshift(&self, ec);
-    }
 
+    while (!by_ended && !(*ec) && !bi_zero(&by))
+    {
+        int d = get_first_digit(&by, &by_ended);
+        temp = bi_mul_dec(&self, d, ec);
+        temp_res = bi_sum(&res, &temp, ec);
+        by = bi_rshift(&by);
+        if (*ec == overflow_err && ignore_overflow_flag)
+        {
+            int dig = get_first_digit(&res, NULL);
+            res = bi_rshift(&res);
+            res.p2 += dig > 5;
+            *overflow += 1;
+            *ec = 0;
+        }
+        else 
+        {
+            self  = bi_lshift(&self, ec);
+            if (*ec == overflow_err && ignore_overflow_flag)
+            {
+                self = bi_rshift(&self);
+                *ec = 0;
+            }
+        }
+        res = temp_res;
+    }
+    res.sign = sign;
     return res;
 }

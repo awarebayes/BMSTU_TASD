@@ -24,6 +24,7 @@ big_int_t bi_mul_dec(big_int_t *self, int other, int *ec);
 int bi_cmp(big_int_t *self, big_int_t *other);
 big_int_t bi_lshift(big_int_t *self, int *ec);
 big_int_t bi_rshift(big_int_t *self);
-big_int_t bi_mul(big_int_t self, big_int_t by, int *ec);
+big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow);
+int bi_zero(big_int_t *self);
 
 #endif
