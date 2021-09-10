@@ -245,8 +245,9 @@ big_int_t bi_mul_dec(big_int_t *self, int other, int *ec)
 
 int get_first_digit(big_int_t *self, int *ended)
 {
-    if (self->p1 == 0 && self->p2 == 0)
-        *ended = 1;
+    if (self->p1 == 0)
+        if (self->p2 / 10 == 0)
+            *ended = 1;
     return self->p2 % 10;
 }
 
@@ -267,7 +268,6 @@ int bi_zero(big_int_t *self)
 big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
 {
     big_int_t res = {0};
-    big_int_t temp_res = {0};
     big_int_t temp = {0};
 
     int ignore_overflow_flag = 0;
@@ -285,17 +285,17 @@ big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
     {
         int d = get_first_digit(&by, &by_ended);
         temp = bi_mul_dec(&self, d, ec);
-        temp_res = bi_sum(&res, &temp, ec);
+        res = bi_sum(&res, &temp, ec);
         by = bi_rshift(&by);
-        if (*ec == overflow_err && ignore_overflow_flag)
+        if ((*ec == overflow_err || (res.p1 > DIGIT_BORROW / 10 && !by_ended)) && ignore_overflow_flag)
         {
-            int dig = get_first_digit(&res, NULL);
+            int dig_shift = get_first_digit(&res, NULL);
             res = bi_rshift(&res);
-            res.p2 += dig > 5;
+            res.p2 += dig_shift >= 5;
             *overflow += 1;
             *ec = 0;
         }
-        else 
+        else if (!by_ended)
         {
             self  = bi_lshift(&self, ec);
             if (*ec == overflow_err && ignore_overflow_flag)
@@ -304,7 +304,6 @@ big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
                 *ec = 0;
             }
         }
-        res = temp_res;
     }
     res.sign = sign;
     return res;

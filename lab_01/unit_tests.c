@@ -765,11 +765,35 @@ void big_float_mul_6()
     int ec = 0;
     char a_str[] = "0.123456789012345678901234567891";
     char b_str[] = "0.123";
-    char t_str[] = "0.015185185048518518504851851851";
+    char t_str[] = "0.0151851850485185185048518518506";
     big_float_t a = bf_sread(a_str, &ec);
     big_float_t b = bf_sread(b_str, &ec);
     big_float_t target = bf_sread(t_str, &ec);
     big_float_t res = bf_mul(&a, &b, &ec);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_float_mul_7()
+{
+    int ec = 0;
+    char a_str[] = "0.123456789012345678901234567891";
+    char b_str[] = "0.129";
+    char t_str[] = "0.0159259257825925925782592592579";
+    big_float_t a = bf_sread(a_str, &ec);
+    big_float_t b = bf_sread(b_str, &ec);
+    big_float_t target = bf_sread(t_str, &ec);
+    big_float_t res = bf_mul(&a, &b, &ec);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_float_mul_8()
+{
+    int ec = 0;
+    char a_str[] = "0.123456789012345678901234567891";
+    char t_str[] = "152415787669562576421277255269E-33";
+    big_float_t a = bf_sread(a_str, &ec);
+    big_float_t target = bf_sread(t_str, &ec);
+    big_float_t res = bf_mul(&a, &a, &ec);
     assert(bf_exact_eq(&res, &target));
 }
 
@@ -852,6 +876,8 @@ int run_tests()
     big_float_mul_4();
     big_float_mul_5();
     big_float_mul_6();
+    big_float_mul_7();
+    big_float_mul_8();
 
     printf("Tests passed!");
     return 0;

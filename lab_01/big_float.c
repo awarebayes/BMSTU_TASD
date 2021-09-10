@@ -69,8 +69,8 @@ void bf_print(big_float_t *b)
 {
     char mantissa[64];
     bi_sprint(&b->m, mantissa);
-
-    printf("%c0.%s E %s%d\n", *mantissa, mantissa+1, b->exp > 0 ? "+" : "", b->exp);
+    int exp_sub = strlen(mantissa) - 1;
+    printf("%c0.%s E %s%d\n", *mantissa, mantissa+1, b->exp > 0 ? "+" : "", b->exp-exp_sub);
 }
 
 void bf_minmax_exp(big_float_t *min, big_float_t *max, int *swap_flag)
