@@ -797,6 +797,19 @@ void big_float_mul_8()
     assert(bf_exact_eq(&res, &target));
 }
 
+void big_float_mul_9()
+{
+    int ec = 0;
+    char a_str[] = "0.123456789012345678901234567891";
+    char b_str[] = "0.129";
+    char t_str[] = "0.0159259257825925925782592592579";
+    big_float_t a = bf_sread(a_str, &ec);
+    big_float_t b = bf_sread(b_str, &ec);
+    big_float_t target = bf_sread(t_str, &ec);
+    big_float_t res = bf_mul(&a, &b, &ec);
+    assert(bf_exact_eq(&res, &target));
+}
+
 
 
 int run_tests()
