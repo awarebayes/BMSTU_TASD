@@ -26,5 +26,9 @@ big_int_t bi_lshift(big_int_t *self, int *ec);
 big_int_t bi_rshift(big_int_t *self);
 big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow);
 int bi_zero(big_int_t *self);
+int bi_n_dig(big_int_t self);
+int bi_get_nth_dig(big_int_t self, int n);
+big_int_t bi_get_nth_dig_big(big_int_t self, int n);
+int bi_div_short(big_int_t self, big_int_t by, big_int_t *rem, int *ec);
 
 #endif

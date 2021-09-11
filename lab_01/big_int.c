@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define BUF_SIZE 64
 
@@ -12,7 +13,6 @@ big_int_t bi_read(int *ec)
 {
     char buf[BUF_SIZE] = {0};
     fgets(buf, BUF_SIZE, stdin);
-    // may be a problem here
     return bi_sread(buf, ec);
 }
 
@@ -77,6 +77,14 @@ void bi_sprint(big_int_t *self, char *buf)
     }
     else
         sprintf(buf, "%c%ld", sign, self->p2);
+}
+
+big_int_t bi_from_int(int a)
+{
+    int16_t sign = a < 0;
+    if (sign)
+        a *= -1;
+    big_int_t res = {.p1=0, .p2=(int64_t)a, .sign=sign};
 }
 
 void bi_print(big_int_t *self)
@@ -177,7 +185,6 @@ big_int_t bi_rshift(big_int_t *self)
 
 big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
 {
-
     big_int_t res = {0};
     if (bi_acmp(self, other) == sm)
     {
@@ -263,6 +270,71 @@ int mul_signs(big_int_t *self, big_int_t *other)
 int bi_zero(big_int_t *self)
 {
     return self->p1 == 0 && self->p2 == 0;
+}
+
+int bi_n_dig(big_int_t self)
+{
+    int cnt = 0;
+    while (self.p1)
+    {
+        cnt++;
+        self.p1 /= 10;
+    }
+    while (self.p2)
+    {
+        cnt++;
+        self.p2 /= 10;
+    }
+    if (cnt == 0)
+        cnt = 1;
+    return cnt;
+}
+
+int bi_get_nth_dig(big_int_t self, int n)
+{
+    int n_all = bi_n_dig(self);
+    int n_shifts = n_all - n - 1;
+    if (n >= n_all)
+    {
+        return 0;
+    }
+    while(n_shifts > 0)
+    {
+        self = bi_rshift(&self);
+        n_shifts--;
+    }
+    return self.p2 % 10;
+
+}
+
+
+big_int_t bi_get_nth_dig_big(big_int_t self, int n)
+{
+    return bi_from_int(bi_get_nth_dig(self, n));
+}
+
+int bi_div_short(big_int_t self, big_int_t by, big_int_t *rem, int *ec)
+{
+    int res = 0;
+    if (bi_zero(&by))
+    {
+        *ec = bad_internal_op_err;
+        return res;
+    }
+    if (bi_cmp(&self, &by) == sm)
+    {
+        *ec = bad_internal_op_err;
+        return res;
+    }
+    big_int_t zero = bi_from_int(0);
+    while (bi_cmp(&self, &zero) == lg && !*ec)
+    {
+        self = bi_sub(&self, &by, ec);
+        res++;
+    }
+    res--;
+    *rem = bi_sum(&self, &by, ec);
+    return res;
 }
 
 big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
