@@ -26,5 +26,6 @@ void ignore_whitespace(char **s);
 int n_char_digits(char *s);
 void strdel(char *begin, int index);
 int no_bad_chars(char *s);
+int n_char_digits_ignore_end_zero(char *s);
 
 #endif

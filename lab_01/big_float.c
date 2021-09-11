@@ -18,6 +18,7 @@ big_float_t bf_read(int *ec)
 big_float_t bf_sread(char *buf, int *ec)
 {
     big_float_t self = {0};
+
     clear_lc(buf);
     ignore_whitespace(&buf);
 
@@ -51,7 +52,7 @@ big_float_t bf_sread(char *buf, int *ec)
     char *dot_ptr = strchr(buf, '.');
     if (dot_ptr != NULL)
     {
-        int to_add_exp = n_char_digits(dot_ptr + 1);
+        int to_add_exp = n_char_digits_ignore_end_zero(dot_ptr + 1);
         self.exp -= to_add_exp;
         strdel(buf, dot_ptr - buf);
     }
@@ -169,6 +170,7 @@ void bf_normalize(big_float_t *self)
     }
 }
 
+// does not work
 big_float_t bf_mul(big_float_t *self, big_float_t *other, int *ec)
 {
     big_float_t res = {0};
@@ -183,6 +185,36 @@ big_float_t bf_mul(big_float_t *self, big_float_t *other, int *ec)
         *ec = overflow_err;
     return res;
 }
+
+big_float_t bf_int_div_f(big_int_t self, big_float_t other, int *ec)
+{
+    big_float_t res = {0};
+    res.exp = bi_n_dig(self) - other.exp;
+    big_int_t bi_ten = bi_from_int(10);
+    big_int_t bi_zero = bi_from_int(0);
+
+    int n = 0;
+    big_int_t divident = bi_from_int(0);
+    big_int_t remainder = {0};
+
+    // todo add sign handling
+    while (bi_n_dig(res.m) < 30 && !(*ec))
+    {
+        while (bi_cmp(&divident, &other.m) == sm)
+        {
+            divident = bi_lshift(&divident, ec); 
+            big_int_t dig = bi_get_nth_dig_big(self, n);
+            n+= 1;
+            divident = bi_sum(&divident, &dig, ec);
+        }
+        int quotient = bi_div_short(divident, other.m, &remainder, ec);
+        big_int_t bi_q = bi_from_int(quotient);
+        res.m = bi_lshift(&res.m, ec);
+        res.m = bi_sum(&res.m, &bi_q, ec);
+    }
+    
+}
+
 
 int bf_exact_eq(big_float_t *a, big_float_t *b)
 {

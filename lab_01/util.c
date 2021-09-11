@@ -33,6 +33,22 @@ int n_char_digits(char *s)
     return cnt;
 }
 
+int n_char_digits_ignore_end_zero(char *s)
+{
+    int cnt = 0;
+    int subseq_zero = 0;
+    while (isdigit(*s))
+    {
+        cnt++;
+        if (*s=='0')
+            subseq_zero++;
+        else
+            subseq_zero = 0;
+        s++;
+    }
+    return cnt - subseq_zero;
+}
+
 void strdel(char *begin, int index)
 {
     char *str = begin;
