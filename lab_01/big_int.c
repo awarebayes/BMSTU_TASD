@@ -188,7 +188,7 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
     big_int_t res = {0};
     if (bi_acmp(self, other) == sm)
     {
-        res = bi_sub(other, self, *ec);
+        res = bi_sub(other, self, ec);
         res.sign = !res.sign;
         return res;
     }
@@ -227,7 +227,7 @@ big_int_t bi_mul_dec(big_int_t *self, int other, int *ec)
 {
     big_int_t res = {0};
 
-    if (!(other >= 0 && !self->sign))
+    if (!(other >= 0 && !self->sign) || other >= 10)
     {
         perror("Unhandled short mul dec!\n");
         *ec = bad_internal_op_err;

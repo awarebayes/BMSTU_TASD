@@ -125,6 +125,12 @@ big_float_t bf_int_div_f(big_int_t self, big_float_t other, int *ec)
         return res;
     }
 
+    // 0 / a
+    if (bi_cmp(&self, &res.m) == eq)
+    {
+        return res;
+    }
+
     int exp = normalize_int(&self);
     res.exp = exp - other.exp;
     int sign = mul_signs_if(&self, &other);
