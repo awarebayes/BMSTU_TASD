@@ -6,9 +6,21 @@
 
 int main()
 {
-    run_tests();
-    // int ec = 0;
-    // big_int_t a = bi_read(&ec);
-    // bi_print(&a);
-    // return ec;
+    // run_tests();
+    int ec = 0;
+    big_int_t a = {0};
+    big_float_t b = {0};
+    big_float_t res = {0};
+
+    banner();
+    ruller();
+    a = bi_read(&ec);
+    ruller();
+    b = bf_read(&ec);
+    res = bf_int_div_f(a, b, &ec);
+    printf(" ");
+    ruller();
+    bf_print(&res);
+    print_ec(ec);
+    return ec;
 }

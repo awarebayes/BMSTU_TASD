@@ -16,9 +16,13 @@ big_int_t bi_read(int *ec)
     return bi_sread(buf, ec);
 }
 
-big_int_t bi_sread(char *buf, int *ec)
+big_int_t bi_sread(char *str_ptr, int *ec)
 {
     big_int_t self = {0};
+
+    char *buf = malloc(sizeof(char) * BUF_SIZE);
+    char *buf_ptr = buf;
+    strcpy(buf, str_ptr);
 
     clear_lc(buf);
     ignore_whitespace(&buf);
@@ -56,15 +60,10 @@ big_int_t bi_sread(char *buf, int *ec)
     {
         int offset = buf_len - N_CHARS_PART;
         sscanf(buf + offset, "%ld", &self.p2);
-        // idk why but
-        // buf + offset = '\0'
-        // gives segfault
-        char *temp = malloc(sizeof(char) * BUF_SIZE);
-        strncpy(temp, buf, offset);
-        sscanf(temp, "%ld", &self.p1);
-        free(temp);
+        buf[offset] = '\0';
+        sscanf(buf, "%ld", &self.p1);
     }
-    
+    free(buf_ptr);
     return self;
 }
 
@@ -85,6 +84,7 @@ big_int_t bi_from_int(int a)
     if (sign)
         a *= -1;
     big_int_t res = {.p1=0, .p2=(int64_t)a, .sign=sign};
+    return res;
 }
 
 void bi_print(big_int_t *self)
@@ -222,13 +222,14 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
     return res;
 }
 
+// multiply big float with single digit integer
 big_int_t bi_mul_dec(big_int_t *self, int other, int *ec)
 {
     big_int_t res = {0};
 
     if (!(other >= 0 && !self->sign))
     {
-        perror("Unhandled short mul dec");
+        perror("Unhandled short mul dec!\n");
         *ec = bad_internal_op_err;
     }
 
@@ -304,7 +305,6 @@ int bi_get_nth_dig(big_int_t self, int n)
         n_shifts--;
     }
     return self.p2 % 10;
-
 }
 
 
@@ -323,11 +323,11 @@ int bi_div_short(big_int_t self, big_int_t by, big_int_t *rem, int *ec)
     }
     if (bi_cmp(&self, &by) == sm)
     {
-        *ec = bad_internal_op_err;
-        return res;
+        *rem = self;
+        return 0;
     }
     big_int_t zero = bi_from_int(0);
-    while (bi_cmp(&self, &zero) == lg && !*ec)
+    while (bi_cmp(&self, &zero) != sm && !*ec)
     {
         self = bi_sub(&self, &by, ec);
         res++;
@@ -363,7 +363,7 @@ big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
         {
             int dig_shift = get_first_digit(&res, NULL);
             res = bi_rshift(&res);
-            res.p2 += dig_shift >= 5;
+            res.p2 += dig_shift >= 5; // rounding
             *overflow += 1;
             *ec = 0;
         }

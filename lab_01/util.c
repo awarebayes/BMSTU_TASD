@@ -1,6 +1,8 @@
 #include "util.h"
 #include <ctype.h>
 #include <string.h>
+#include <stdio.h>
+
 int n_digits(int n)
 {
     int c = 0;
@@ -71,4 +73,44 @@ int no_bad_chars(char *s)
     while (isspace(*s))
         s++;
     return *s == '\0';
+}
+
+void ruller()
+{
+    printf("|    |    |    |    |    |    |\n");
+}
+
+void banner()
+{
+    printf("Arbitrary precision division: float / int\n");
+    printf("Input float, then input int:\n");
+}
+
+void print_ec(int ec)
+{
+    if (ec)
+        printf("An error has arisen: ");
+    switch (ec)
+    {
+        case ok:
+            break;
+        case num_too_long_err:
+            perror("num_too_long_err\n");
+            break;
+        case bad_chars_err:
+            perror("bad_chars_err\n");
+            break;
+        case overflow_err:
+            perror("overflow_err\n");
+            break;
+        case bad_internal_op_err:
+            perror("bad_internal_op_err\n");
+            break;
+        case read_err:
+            perror("read_err\n");
+            break;
+        case zero_div_err:
+            perror("zero_div_err\n");
+            break;
+        }
 }

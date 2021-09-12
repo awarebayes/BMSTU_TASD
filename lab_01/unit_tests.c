@@ -551,74 +551,6 @@ void big_float_read_13()
     assert(bf_exact_eq(&a, &target));
 }
 
-void big_float_add_1()
-{
-    int ec = 0;
-    char a_str[] = "0.2";
-    char b_str[] = "0.1";
-    char t_str[] = "0.3";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sum(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-
-
-void big_float_add_2()
-{
-    int ec = 0;
-    char a_str[] = "0.2";
-    char b_str[] = "0.01";
-    char t_str[] = "0.21";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sum(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_add_3()
-{
-    int ec = 0;
-    char a_str[] = "0.2 E -3";
-    char b_str[] = "0.01 E 4";
-    char t_str[] = "100.0002";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sum(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_add_4()
-{
-    int ec = 0;
-    char a_str[] = "0.2 E -300";
-    char b_str[] = "0.01 E 4";
-    char t_str[] = "0.01 E 4";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sum(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_add_5()
-{
-    // maybe another test?
-    int ec = 0;
-    char a_str[] = "123456789012345678901234567899 E -300";
-    char b_str[] = "123456789012345678901234567899 E -300";
-    char t_str[] = "246913578024691357802469135798 E -300";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sum(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
 void big_float_norm_1()
 {
     int ec = 0;
@@ -627,187 +559,6 @@ void big_float_norm_1()
     big_float_t target = bf_sread(t_str, &ec);
     bf_normalize(&a);
     assert(bf_exact_eq(&a, &target));
-}
-
-void big_float_sub_1()
-{
-    int ec = 0;
-    char a_str[] = "0.2";
-    char b_str[] = "0.1";
-    char t_str[] = "0.1";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sub(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_sub_2()
-{
-    int ec = 0;
-    char a_str[] = "0.2";
-    char b_str[] = "0.01";
-    char t_str[] = "0.19";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sub(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_sub_3()
-{
-    int ec = 0;
-    char a_str[] = "0.2 E -3";
-    char b_str[] = "0.01 E 4";
-    char t_str[] = "-99.9998";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sub(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_sub_4()
-{
-    int ec = 0;
-    char b_str[] = "0.2 E -300";
-    char a_str[] = "0.01 E 4";
-    char t_str[] = "0.01 E 4";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sub(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_sub_5()
-{
-    int ec = 0;
-    char a_str[] = "1 E -20";
-    char b_str[] = "1";
-    char t_str[] = "-0.99999999999999999999";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_sub(&a, &b);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_1()
-{
-    int ec = 0;
-    char a_str[] = "1 E -1";
-    char b_str[] = "1 E -1";
-    char t_str[] = "1 E -2";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-
-void big_float_mul_2()
-{
-    int ec = 0;
-    char a_str[] = "1 E -1";
-    char b_str[] = "0";
-    char t_str[] = "0";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_3()
-{
-    int ec = 0;
-    char a_str[] = "0.123";
-    char b_str[] = "0.234234";
-    char t_str[] = "0.028810782";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_4()
-{
-    int ec = 0;
-    char a_str[] = "0.123456789012345678901234567890";
-    char b_str[] = "0.2";
-    char t_str[] = "0.024691357802469135780246913578";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_5()
-{
-    int ec = 0;
-    char a_str[] = "0.12345678901234567890123456789";
-    char b_str[] = "0.12";
-    char t_str[] = "0.0148148146814814814681481481468";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_6()
-{
-    int ec = 0;
-    char a_str[] = "0.123456789012345678901234567891";
-    char b_str[] = "0.123";
-    char t_str[] = "0.0151851850485185185048518518506";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_7()
-{
-    int ec = 0;
-    char a_str[] = "0.123456789012345678901234567891";
-    char b_str[] = "0.129";
-    char t_str[] = "0.0159259257825925925782592592579";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_8()
-{
-    int ec = 0;
-    char a_str[] = "0.123456789012345678901234567891";
-    char t_str[] = "152415787669562576421277255269E-33";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &a, &ec);
-    assert(bf_exact_eq(&res, &target));
-}
-
-void big_float_mul_9()
-{
-    int ec = 0;
-    char a_str[] = "0.123456789012345678901234567891";
-    char b_str[] = "0.1234567890";
-    char t_str[] = "0.0152415787517146788751714678876";
-    big_float_t a = bf_sread(a_str, &ec);
-    big_float_t b = bf_sread(b_str, &ec);
-    big_float_t target = bf_sread(t_str, &ec);
-    big_float_t res = bf_mul(&a, &b, &ec);
-    assert(bf_exact_eq(&res, &target));
 }
 
 void big_int_nth_dig_1()
@@ -884,6 +635,164 @@ void big_int_sdiv_3()
     assert(res == target);
 }
 
+void big_int_div_1()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("4", &ec);
+    big_float_t b = bf_sread("1", &ec);
+    big_float_t target = bf_sread("4", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_2()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("40", &ec);
+    big_float_t b = bf_sread("1", &ec);
+    big_float_t target = bf_sread("40", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_3()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("40", &ec);
+    big_float_t b = bf_sread("2", &ec);
+    big_float_t target = bf_sread("20", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_4()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("40", &ec);
+    big_float_t b = bf_sread("10", &ec);
+    big_float_t target = bf_sread("4", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_5()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("10005", &ec);
+    big_float_t b = bf_sread("5", &ec);
+    big_float_t target = bf_sread("2001", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_6()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("69081336", &ec);
+    big_float_t b = bf_sread("324", &ec);
+    big_float_t target = bf_sread("213214", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_7()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("263093740605767700504651852", &ec);
+    big_float_t b = bf_sread("2133348324", &ec);
+    big_float_t target = bf_sread("123324324324342123", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_8()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("1", &ec);
+    char fbuf[] = "1E-5";
+    char tbuf[] = "1E5";
+    big_float_t b = bf_sread(fbuf, &ec);
+    big_float_t target = bf_sread(tbuf, &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_9()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("1", &ec);
+    char fbuf[] = "3";
+    char tbuf[] = "0.333333333333333333333333333333";
+    big_float_t b = bf_sread(fbuf, &ec);
+    big_float_t target = bf_sread(tbuf, &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_10()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("4", &ec);
+    char fbuf[] = "0.25";
+    char tbuf[] = "16";
+    big_float_t b = bf_sread(fbuf, &ec);
+    big_float_t target = bf_sread(tbuf, &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_11()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("6", &ec);
+    char fbuf[] = "7.32";
+    char tbuf[] = "0.819672131147540983606557377049";
+    big_float_t b = bf_sread(fbuf, &ec);
+    big_float_t target = bf_sread(tbuf, &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_12()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("14", &ec);
+    big_float_t b = bf_sread("0.0038", &ec);
+    big_float_t target = bf_sread("3684.21052631578947368421052631", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
+void big_int_div_13()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("14", &ec);
+    big_float_t b = bf_sread("0", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == zero_div_err);
+}
+
+void big_int_div_14()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("1000", &ec);
+    big_float_t b = bf_sread("1E-99999", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == overflow_err);
+}
+
 int run_tests()
 {
     big_int_read_1();
@@ -919,14 +828,6 @@ int run_tests()
     big_int_mul_dec_2();
     big_int_mul_dec_3();
 
-    big_int_mul_1();
-    big_int_mul_2();
-    big_int_mul_3();
-    big_int_mul_4();
-    big_int_mul_5();
-    big_int_mul_6();
-    big_int_mul_7();
-
     big_float_read_1();
     big_float_read_2();
     big_float_read_3();
@@ -941,29 +842,7 @@ int run_tests()
     big_float_read_12();
     big_float_read_13();
 
-    big_float_add_1();
-    big_float_add_2();
-    big_float_add_3();
-    big_float_add_4();
-    big_float_add_5();
-
     big_float_norm_1();
-
-    big_float_sub_1();
-    big_float_sub_2();
-    big_float_sub_3();
-    big_float_sub_4();
-    big_float_sub_5();
-
-    // big_float_mul_1();
-    // big_float_mul_2();
-    // big_float_mul_3();
-    // big_float_mul_4();
-    // big_float_mul_5();
-    // big_float_mul_6();
-    // big_float_mul_7();
-    // big_float_mul_8();
-    // big_float_mul_9();
 
     big_int_nth_dig_1();
     big_int_nth_dig_2();
@@ -973,6 +852,21 @@ int run_tests()
     big_int_sdiv_1();
     big_int_sdiv_2();
     big_int_sdiv_3();
+
+    big_int_div_1();
+    big_int_div_2();
+    big_int_div_3();
+    big_int_div_4();
+    big_int_div_5();
+    big_int_div_6();
+    big_int_div_7();
+    big_int_div_8();
+    big_int_div_9();
+    big_int_div_10();
+    big_int_div_11();
+    big_int_div_12();
+    big_int_div_13();
+    big_int_div_14();
 
     printf("Tests passed!\n");
     return 0;
