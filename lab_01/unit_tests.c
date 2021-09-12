@@ -793,6 +793,17 @@ void big_int_div_14()
     assert(ec == overflow_err);
 }
 
+void big_int_div_15()
+{
+    int ec = 0;
+    big_int_t a = bi_sread("14", &ec);
+    big_float_t b = bf_sread("-14", &ec);
+    big_float_t target = bf_sread("-1", &ec);
+    big_float_t res = bf_int_div_f(a, b, &ec);
+    assert(ec == 0);
+    assert(bf_exact_eq(&res, &target));
+}
+
 int run_tests()
 {
     big_int_read_1();
@@ -867,6 +878,7 @@ int run_tests()
     big_int_div_12();
     big_int_div_13();
     big_int_div_14();
+    big_int_div_15();
 
     printf("Tests passed!\n");
     return 0;

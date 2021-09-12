@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define RULER 1
+
 int n_digits(int n)
 {
     int c = 0;
@@ -77,7 +79,8 @@ int no_bad_chars(char *s)
 
 void ruller()
 {
-    printf("|    |    |    |    |    |    |\n");
+    if (RULER)
+        printf("|    |    |    !    |    |    |\n");
 }
 
 void banner()
