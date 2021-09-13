@@ -86,7 +86,7 @@ void ruller()
 void banner()
 {
     printf("Arbitrary precision division: float / int\n");
-    printf("Input float, then input int:\n");
+    printf("Input int, then input float:\n");
 }
 
 void print_ec(int ec)

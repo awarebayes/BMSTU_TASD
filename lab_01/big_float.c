@@ -78,7 +78,7 @@ void bf_print(big_float_t *b)
     char mantissa[64];
     bi_sprint(&b->m, mantissa);
     int exp_sub = strlen(mantissa) - 1;
-    printf("%c0.%s E %s%d\n", *mantissa, mantissa+1, b->exp > 0 ? "+" : "", b->exp+exp_sub-1);
+    printf("%c0.%s E %s%d\n", *mantissa, mantissa+1, b->exp > 0 ? "+" : "", b->exp+exp_sub);
 }
 
 void bf_normalize(big_float_t *self)
@@ -115,58 +115,74 @@ int mul_signs_if(big_int_t *self, big_float_t *other)
     return 1;
 }
 
-big_float_t bf_int_div_f(big_int_t self, big_float_t other, int *ec)
+big_float_t bf_int_div_f(big_int_t a, big_float_t b, int *ec)
 {
 
     big_float_t res = {0};
-    if (bi_zero(&other.m))
+    if (bi_zero(&b.m))
     {
         *ec = zero_div_err;
         return res;
     }
 
     // 0 / a
-    if (bi_cmp(&self, &res.m) == eq)
+    if (bi_cmp(&a, &res.m) == eq)
     {
         return res;
     }
 
-    int exp = normalize_int(&self);
-    res.exp = exp - other.exp;
-    int sign = mul_signs_if(&self, &other);
+    int exp = normalize_int(&a);
+    res.exp = exp - b.exp;
+    int sign = mul_signs_if(&a, &b);
 
     int n = 0;
-    int n_all = bi_n_dig(self);
+    int n_all = bi_n_dig(a);
     big_int_t divident = bi_from_int(0);
     big_int_t remainder = {0};
-    while (bi_cmp(&divident, &other.m) == sm)
+    while (bi_cmp(&divident, &b.m) == sm)
     {
         divident = bi_lshift(&divident, ec); 
-        big_int_t dig = bi_get_nth_dig_big(self, n);
+        big_int_t dig = bi_get_nth_dig_big(a, n);
         n+= 1;
         divident = bi_sum(&divident, &dig, ec);
         if (n > n_all + 1)
             res.exp -= 1;
     }
-    while (((bi_n_dig(res.m) < 30 && !bi_zero(&divident)) || n < n_all)  && !(*ec))
+    if (bi_n_dig(divident) == 31)
+        *ec = 0;
+    while (((bi_n_dig(res.m) < 30 && !bi_zero(&divident)) || n < n_all) && !(*ec))
     {
-        int quotient = bi_div_short(divident, other.m, &remainder, ec);
+        int quotient = bi_div_short(divident, b.m, &remainder, ec);
         big_int_t bi_q = bi_from_int(quotient);
         res.m = bi_lshift(&res.m, ec);
         res.m = bi_sum(&res.m, &bi_q, ec);
 
-        big_int_t dig = bi_get_nth_dig_big(self, n);
+        big_int_t dig = bi_get_nth_dig_big(a, n);
         n+= 1;
         remainder = bi_lshift(&remainder, ec);
         divident = bi_sum(&remainder, &dig, ec);
         if (n > n_all + 1)
             res.exp -= 1;
+        
+        if (bi_n_dig(divident) == 31)
+            *ec = 0;
+    }
+
+    //lets check rounding
+    int quotient = bi_div_short(divident, b.m, &remainder, ec);
+    if (quotient >= 5)
+    {
+        // might be overflow error here!
+        // 9999999999999999 + 1 kind
+        big_int_t one = bi_from_int(1);
+        res.m = bi_sum(&res.m, &one, ec);
     }
 
     if (res.exp > MAX_EXP || res.exp < -MAX_EXP)
         *ec = overflow_err;
 
     res.m.sign = sign;
+    bf_normalize(&res);
     return res;
 }
 

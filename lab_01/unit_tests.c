@@ -302,7 +302,7 @@ void big_int_mul_dec_1()
     int ec = 0;
     big_int_t a = bi_sread("3", &ec);
     int d = 3;
-    big_int_t c = bi_mul_dec(&a, d, &ec);
+    big_int_t c = bi_mul_dig(&a, d, &ec);
     big_int_t target = bi_sread("9", &ec);
     assert(ec == 0);
     if (bi_cmp(&c, &target) != eq)
@@ -320,7 +320,7 @@ void big_int_mul_dec_2()
     int ec = 0;
     big_int_t a = bi_sread("12345678902134567890", &ec);
     int d = 9;
-    big_int_t c = bi_mul_dec(&a, d, &ec);
+    big_int_t c = bi_mul_dig(&a, d, &ec);
     big_int_t target = bi_sread("111111110119211111010", &ec);
     assert(ec == 0);
     if (bi_cmp(&c, &target) != eq)
@@ -339,7 +339,7 @@ void big_int_mul_dec_3()
     int ec = 0;
     big_int_t a = bi_sread("999999999999999999999999999999", &ec);
     int d = 9;
-    bi_mul_dec(&a, d, &ec);
+    bi_mul_dig(&a, d, &ec);
     assert(ec == overflow_err);
 }
 
@@ -769,7 +769,7 @@ void big_int_div_12()
     int ec = 0;
     big_int_t a = bi_sread("14", &ec);
     big_float_t b = bf_sread("0.0038", &ec);
-    big_float_t target = bf_sread("3684.21052631578947368421052631", &ec);
+    big_float_t target = bf_sread("3684.21052631578947368421052632", &ec);
     big_float_t res = bf_int_div_f(a, b, &ec);
     assert(ec == 0);
     assert(bf_exact_eq(&res, &target));

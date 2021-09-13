@@ -20,7 +20,7 @@ void bi_print(big_int_t *self);
 void bi_sprint(big_int_t *self, char *buf);
 big_int_t bi_sum(big_int_t *self, big_int_t *other, int *ec);
 big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec);
-big_int_t bi_mul_dec(big_int_t *self, int other, int *ec);
+big_int_t bi_mul_dig(big_int_t *self, int other, int *ec);
 big_int_t bi_from_int(int a);
 int bi_cmp(big_int_t *self, big_int_t *other);
 big_int_t bi_lshift(big_int_t *self, int *ec);

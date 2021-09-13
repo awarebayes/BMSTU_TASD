@@ -223,7 +223,7 @@ big_int_t bi_sub(big_int_t *self, big_int_t *other, int *ec)
 }
 
 // multiply big float with single digit integer
-big_int_t bi_mul_dec(big_int_t *self, int other, int *ec)
+big_int_t bi_mul_dig(big_int_t *self, int other, int *ec)
 {
     big_int_t res = {0};
 
@@ -276,16 +276,24 @@ int bi_zero(big_int_t *self)
 int bi_n_dig(big_int_t self)
 {
     int cnt = 0;
-    while (self.p1)
+    if (self.p1 != 0)
     {
-        cnt++;
-        self.p1 /= 10;
+        cnt += 15;
+        while (self.p1)
+        {
+            cnt++;
+            self.p1 /= 10;
+        }
     }
-    while (self.p2)
+    else
     {
-        cnt++;
-        self.p2 /= 10;
+        while (self.p2)
+        {
+            cnt++;
+            self.p2 /= 10;
+        }
     }
+
     if (cnt == 0)
         cnt = 1;
     return cnt;
@@ -356,7 +364,7 @@ big_int_t bi_mul(big_int_t self, big_int_t by, int *ec, int *overflow)
     while (!by_ended && !(*ec) && !bi_zero(&by))
     {
         int d = get_first_digit(&by, &by_ended);
-        temp = bi_mul_dec(&self, d, ec);
+        temp = bi_mul_dig(&self, d, ec);
         res = bi_sum(&res, &temp, ec);
         by = bi_rshift(&by);
         if ((*ec == overflow_err || (res.p1 > DIGIT_BORROW / 10 && !by_ended)) && ignore_overflow_flag)
