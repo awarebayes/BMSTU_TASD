@@ -14,3 +14,4 @@ bin/
 /fuzz
 /**/temp/
 /**/sus_tests/
+/**/build/
