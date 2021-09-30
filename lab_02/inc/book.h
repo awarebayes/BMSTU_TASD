@@ -1,3 +1,8 @@
+#ifndef __BOOK_H__
+#define __BOOK_H__
+
+#include <stdio.h>
+
 #define SSIZE 64
 enum translation_t
 {
@@ -52,6 +57,7 @@ enum book_kind_e
 typedef struct
 {
     char lastname[SSIZE];
+    char title[SSIZE];
     char publisher[SSIZE];
     int pages;
     int type;
@@ -63,3 +69,13 @@ enum err_t
     ok,
     input_err,
 };
+
+void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec);
+void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec);
+tech_book_t read_tech_book(FILE *fout, FILE *fin, int *ec);
+fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec);
+kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec);
+book_t book_read(FILE *fin, FILE *fout, int *ec);
+void book_show(FILE *fout, book_t *book);
+
+#endif 
