@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "book.h"
+#include "menu.h"
+#include "table.h"
 
 /*
  * Ввести список литературы, содержащий фамилию автора, 
@@ -11,10 +13,13 @@
  *  литературы по указанной отрасли указанного года. 
  */
 
-int main(int argc, char const *argv[])
+int main()
 {
     int ec = ok;
-    book_t res = book_read(stdin, stdout, &ec);
-    book_show(stdout, &res);
+    FILE *f = fopen("../tests/input.txt", "r");
+    if (f == NULL)
+        return -1;
+    table_t table = table_read_file(f, 7, &ec);
+    table_print(&table);
     return ec;
 }

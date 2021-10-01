@@ -2,6 +2,7 @@
 #define __BOOK_H__
 
 #include <stdio.h>
+#include "key.h"
 
 #define SSIZE 64
 enum translation_t
@@ -70,12 +71,16 @@ enum err_t
     input_err,
 };
 
-void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec);
-void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec);
-tech_book_t read_tech_book(FILE *fout, FILE *fin, int *ec);
-fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec);
-kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec);
+typedef int (*cmp_func_t)(const void *, const void *);
+
+//void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec);
+//void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec);
+//tech_book_t read_tech_book(FILE *fout, FILE *fin, int *ec);
+//fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec);
+//kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec);
 book_t book_read(FILE *fin, FILE *fout, int *ec);
-void book_show(FILE *fout, book_t *book);
+char *book_show(char *buf, book_t *book);
+cmp_func_t book_cmp_f(int type);
+int key_cmp(void *a, void *b);
 
 #endif 

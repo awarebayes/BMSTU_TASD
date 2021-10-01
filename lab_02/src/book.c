@@ -1,19 +1,31 @@
 #include <stdio.h>
+#include <string.h>
 #include "book.h"
+
+#define BUFFER_SIZE 64
 
 void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
 {
     if (fout)
         fprintf(fout, "%s", hint_msg);
-    if (fscanf(fin, "%s", target) != 1)
+    fgets(target, BUFFER_SIZE, fin);
+    if (ferror(fin))
         *ec = input_err;
+    else
+    {
+        char *newline = strchr(target, '\n');
+        if (newline != NULL)
+            *newline = '\0'; // delete \n
+    }
 }
 
 void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
 {
+    char buffer[BUFFER_SIZE];
     if (fout)
         fprintf(fout, "%s", hint_msg);
-    if (fscanf(fin, "%d", target) != 1)
+    fgets(buffer, BUFFER_SIZE, fin);
+    if (sscanf(buffer, "%d", target) != 1)
         *ec = input_err;
 }
 
@@ -82,7 +94,76 @@ book_t book_read(FILE *fin, FILE *fout, int *ec)
     return book;
 }
 
-void book_show(FILE *fout, book_t *book)
+char *book_show(char *buf, book_t *book)
 {
-    fprintf(fout, "%s, %s, %s, %d, %d\n", book->lastname, book->title, book->publisher, book->pages, book->type);
+    sprintf(buf, "%s, %s, %s, %d, %d", book->lastname, book->title, book->publisher, book->pages, book->type);
+    return buf;
+}
+
+int str_cmp(const void *a, const void *b)
+{
+    char *s1 = (char*)a;
+    char *s2 = (char*)b;
+    return strcmp(s1, s2);
+}
+
+int int_cmp(const void *a, const void *b)
+{
+    int i1 = (int*)a;
+    int i2 = (int*)b;
+    return i1-i2;
+}
+
+int book_cmp_lastname(const void *a, const void *b)
+{
+    char *l1 = ((book_t*)a)->lastname;
+    char *l2 = ((book_t*)b)->lastname;
+    return strcmp(l1, l2);
+}
+
+int book_cmp_publisher(const void *a, const void *b)
+{
+    char *p1 = ((book_t*)a)->publisher;
+    char *p2 = ((book_t*)b)->publisher;
+    return strcmp(p1, p2);
+}
+
+int book_cmp_title(const void *a, const void *b)
+{
+    char *t1 = ((book_t*)a)->title;
+    char *t2 = ((book_t*)b)->title;
+    return strcmp(t1, t2);
+}
+
+int book_cmp_pages(const void *a, const void *b)
+{
+    int p1 = ((book_t*)a)->pages;
+    int p2 = ((book_t*)b)->pages;
+    return p1-p2;
+}
+
+int book_cmp_type(const void *a, const void *b)
+{
+    int t1 = ((book_t*)a)->type;
+    int t2 = ((book_t*)b)->type;
+    return t1-t2;
+}
+
+cmp_func_t book_cmp_f(int type)
+{
+    switch (key_type)
+    {
+    case key_lastname:
+        return book_cmp_lastname;
+    case key_title:
+        return book_cmp_publisher;
+    case key_publisher:
+        return book_cmp_publisher;
+    case key_pages:
+        return book_cmp_pages;
+    case key_type:
+        return book_cmp_type;
+   default:
+        return NULL;
+    }
 }
