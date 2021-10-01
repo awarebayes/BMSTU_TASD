@@ -17,6 +17,7 @@ table_t table_new(int capacity)
 void table_delete(table_t *self)
 {
     free(self->books);
+    free(self->keys);
 }
 
 table_t table_realloc(table_t *self, int new_size)
@@ -24,6 +25,7 @@ table_t table_realloc(table_t *self, int new_size)
     assert(new_size >= self->size);
     table_t new_self = table_new(new_size);
     memcpy(new_self.books, self->books, sizeof(book_t) * self->size);
+    memcpy(new_self.keys, self->keys, sizeof(book_key_t) * self->size);
     new_self.size = self->size;
     table_delete(self);
     return new_self;
@@ -66,6 +68,19 @@ void table_print(table_t *self)
     }
 }
 
+void table_print_proxy(table_t *self)
+{
+    char buf[128];
+    printf("Table [%d]:\n", self->size);
+    print_header();
+    int idx = 0;
+    for (int i = 0; i < self->size; i++)
+    {
+        idx = self->keys[i].pos_actual;
+        printf("%s\n", book_show(buf, &self->books[idx]));
+    }
+}
+
 void table_update_keys(table_t *self, int type)
 {
     for(int i = 0; i < self->size; i++)
@@ -94,3 +109,9 @@ void table_update_keys(table_t *self, int type)
     }
 }
 
+void table_sort_keys(table_t *self)
+{
+    qsort(self->keys, self->size, sizeof(book_key_t), key_cmp);
+    for (int i = 0; i < self->size; i++)
+        self->keys[i].pos_fake = i;
+}

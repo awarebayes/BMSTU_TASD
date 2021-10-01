@@ -20,6 +20,8 @@ int main()
     if (f == NULL)
         return -1;
     table_t table = table_read_file(f, 7, &ec);
-    table_print(&table);
+    table_update_keys(&table, key_lastname);
+    table_sort_keys(&table);
+    table_print_proxy(&table);
     return ec;
 }

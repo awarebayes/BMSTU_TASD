@@ -1,6 +1,7 @@
 #include "book.h"
+#include <assert.h>
 
-int key_cmp(void *a, void *b)
+int key_cmp(const void *a, const void *b)
 {
     book_key_t *k1 = (book_key_t *)a;
     book_key_t *k2 = (book_key_t *)b;
@@ -36,6 +37,7 @@ book_key_t key_new(int type, void* key, int pos_actual)
     self.pos_actual = pos_actual;
     self.pos_fake = pos_actual;
     self.key = key;
+    return self;
 }
 
 int get_base_type(int field_type)

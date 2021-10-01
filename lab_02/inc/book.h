@@ -81,6 +81,5 @@ typedef int (*cmp_func_t)(const void *, const void *);
 book_t book_read(FILE *fin, FILE *fout, int *ec);
 char *book_show(char *buf, book_t *book);
 cmp_func_t book_cmp_f(int type);
-int key_cmp(void *a, void *b);
 
 #endif 

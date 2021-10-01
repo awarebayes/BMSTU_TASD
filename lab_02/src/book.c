@@ -109,9 +109,9 @@ int str_cmp(const void *a, const void *b)
 
 int int_cmp(const void *a, const void *b)
 {
-    int i1 = (int*)a;
-    int i2 = (int*)b;
-    return i1-i2;
+    int *i1 = (int*)a;
+    int *i2 = (int*)b;
+    return *i1-*i2;
 }
 
 int book_cmp_lastname(const void *a, const void *b)
