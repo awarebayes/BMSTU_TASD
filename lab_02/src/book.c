@@ -151,7 +151,7 @@ int book_cmp_type(const void *a, const void *b)
 
 cmp_func_t book_cmp_f(int type)
 {
-    switch (key_type)
+    switch (type)
     {
     case key_lastname:
         return book_cmp_lastname;
@@ -166,4 +166,28 @@ cmp_func_t book_cmp_f(int type)
    default:
         return NULL;
     }
+}
+
+book_key_t book_get_key(book_t *self, int type)
+{
+    void *key_ptr = NULL;
+    switch (type)
+    {
+        case key_lastname:
+            key_ptr = self->lastname;
+            break;
+        case key_title:
+            key_ptr = self->title;
+            break;
+        case key_publisher:
+            key_ptr = self->publisher;
+            break;
+        case key_pages:
+            key_ptr = &self->pages;
+            break;
+        case key_type:
+            key_ptr = &self->type;
+            break;
+    }
+    return key_new(type, key_ptr, 0);
 }

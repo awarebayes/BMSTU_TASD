@@ -1,5 +1,32 @@
 #include "book.h"
+#define _GNU_SOURCE 
 #include <assert.h>
+#include <stdlib.h>
+
+book_key_t key_new(int type, void* key, int pos_actual)
+{
+    book_key_t self = {0};
+    self.type = type;
+    self.base_type = get_base_type(type);
+    self.pos_actual = pos_actual;
+    self.pos_fake = pos_actual;
+    self.key = key;
+    return self;
+}
+
+void key_delete(book_key_t *self)
+{
+    free(self->key);
+}
+
+book_key_t key_dummy(int type, void* key)
+{
+    book_key_t self = {0};
+    self.type = type;
+    self.base_type = get_base_type(type);
+    self.key = key;
+    return self;
+}
 
 int key_cmp(const void *a, const void *b)
 {
@@ -13,31 +40,26 @@ int key_cmp(const void *a, const void *b)
     case key_int:
         return int_cmp(k1->key, k2->key);
     }
+    return 0;
 }
 
-char *show_key(char *buf, book_key_t *key)
+
+char *key_show(book_key_t *self)
 {
-    switch (key->base_type)
+    char *value = NULL;
+    char *buf = NULL;
+    switch (self->base_type)
     {
     case key_string:
-        sprintf(buf, "%s", key->key);
+        asprintf(&value, "%s", (char *)self->key);
         break;
     case key_int:
-        sprintf(buf, "%d", key->key);
+        asprintf(&value, "%d", *((int*)self->key));
         break;
     }
+    asprintf(&buf, "%d, %d, %s, %d", self->pos_fake, self->pos_actual, value, self->type);
+    free(value);
     return buf;
-}
-
-book_key_t key_new(int type, void* key, int pos_actual)
-{
-    book_key_t self = {0};
-    self.type = type;
-    self.base_type = get_base_type(type);
-    self.pos_actual = pos_actual;
-    self.pos_fake = pos_actual;
-    self.key = key;
-    return self;
 }
 
 int get_base_type(int field_type)

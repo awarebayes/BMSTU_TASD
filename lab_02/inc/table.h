@@ -1,6 +1,7 @@
 #ifndef __TABLE_H__
 #define __TABLE_H__
 
+#define _GNU_SOURCE 
 #include "book.h"
 #include "key.h"
 
@@ -12,14 +13,21 @@ typedef struct
     int capacity;
 } table_t;
 
+typedef void (*sort_func_t)(void *base, size_t nmemb, size_t size, cmp_func_t);
+
 table_t table_new(int size);
 void table_delete(table_t *self);
 table_t table_realloc(table_t *self, int new_size);
 void table_insert(table_t *self, book_t book);
 table_t table_read_file(FILE *fin, int n, int *ec);
 void table_print(table_t *self);
+void table_print_at_indexes(table_t *self, int *indexes, int n);
 void table_update_keys(table_t *self, int type);
-void table_sort_keys(table_t *self);
+void table_sort_keys(table_t *self, sort_func_t sort);
+void table_sort(table_t *self, sort_func_t sort, int type);
 void table_print_proxy(table_t *self);
+void table_print_key_table(table_t *self);
+int *table_filter(table_t *self, book_key_t *key, int *n);
+void table_remove(table_t *self, int *indexes, int n);
 
 #endif // !__TABLE_H__

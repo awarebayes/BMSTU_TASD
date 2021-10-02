@@ -1,6 +1,7 @@
 #ifndef __BOOK_H__
 #define __BOOK_H__
 
+#define _GNU_SOURCE 
 #include <stdio.h>
 #include "key.h"
 
@@ -78,8 +79,11 @@ typedef int (*cmp_func_t)(const void *, const void *);
 //tech_book_t read_tech_book(FILE *fout, FILE *fin, int *ec);
 //fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec);
 //kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec);
+int str_cmp(const void *a, const void *b);
+int int_cmp(const void *a, const void *b);
 book_t book_read(FILE *fin, FILE *fout, int *ec);
 char *book_show(char *buf, book_t *book);
 cmp_func_t book_cmp_f(int type);
+book_key_t book_get_key(book_t *self, int type);
 
 #endif 

@@ -1,0 +1,181 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile folder",
+            "type": "shell",
+            "group": "build",
+            "command": "cd $(labfolder ${fileDirname})/build/release && cmake ../.. && make && cp main ../",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile folder for debugging",
+            "type": "shell",
+            "group": "build",
+            "command": "cd $(labfolder ${fileDirname})/build/debug && cmake ../.. -DCMAKE_BUILD_TYPE=Debug && make && cp main ../",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile folder for testing",
+            "type": "shell",
+            "group": "build",
+            "command": "cd $(labfolder ${fileDirname})/unit_tests && make test.exe",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile folder for testing and debugging",
+            "type": "shell",
+            "group": "build",
+            "command": "cd $(labfolder ${fileDirname}) && make -B debug_tests",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Style check",
+            "type": "shell",
+            "command": "./scripts/style_check.sh",
+            "problemMatcher": []
+        },
+        {
+            "label": "Create tests",
+            "type": "shell",
+            "command": "./scripts/make_tests.sh",
+            "args": [
+                "$(labfolder ${fileDirname})",
+                "${input:n_pos_tests}",
+                "${input:n_neg_tests}",
+                "${input:create_args}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Func test folder",
+            "type": "shell",
+            "command": "python $(labfolder ${fileDirname})/func_tests/test.py $(labfolder ${fileDirname}/func_tests)",
+            "dependsOn": [
+                "Compile folder"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Unit test folder",
+            "type": "shell",
+            "command": "$(labfolder ${fileDirname})/unit_tests/test.exe",
+            "dependsOn": [
+                "Compile folder for testing"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Run unit and functional tests",
+            "type": "shell",
+            "dependsOn": [
+                "Func test folder",
+                "Unit test folder",
+            ]
+        },
+        {
+            "label": "Remove empty tests",
+            "type": "shell",
+            "command": "./scripts/remove_empty_tests.sh",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run folder",
+            "type": "shell",
+            "command": "cd $(labfolder ${fileDirname})/build && ./main",
+            "dependsOn": [
+                "Compile folder"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Run valgrind",
+            "type": "shell",
+            "command": "python ./scripts/valgrind.py $(labfolder ${fileDirname})",
+            "problemMatcher": [],
+            "dependsOn": [
+                "Debug build folder"
+            ]
+        }
+    ],
+    "inputs":[
+        {
+            "type": "promptString",
+            "id": "n_neg_tests",
+            "description": "# negative tests",
+            "default": "5",
+        },
+        {
+            "type": "promptString",
+            "id": "n_pos_tests",
+            "description": "# positive tests",
+            "default": "5",
+        },
+        {
+            "type": "pickString",
+            "id": "create_args",
+            "description": "Create arg files?",
+            "default": "yes",
+            "options": [
+                "yes",
+                "no"
+            ]
+        }
+    ]
+}

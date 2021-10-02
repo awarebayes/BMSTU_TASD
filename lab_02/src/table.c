@@ -54,7 +54,12 @@ table_t table_read_file(FILE *fin, int n, int *ec)
 
 void print_header()
 {
-    printf("Lastname, title, publisher, pages, type\n");
+    printf("index, lastname, title, publisher, pages, type\n");
+}
+
+void print_keys_header()
+{
+    printf("pos_fake, pos_actual, value, type\n");
 }
 
 void table_print(table_t *self)
@@ -64,7 +69,19 @@ void table_print(table_t *self)
     print_header();
     for (int i = 0; i < self->size; i++)
     {
-        printf("%s\n", book_show(buf, &self->books[i]));
+        printf("%d, %s\n", i, book_show(buf, &self->books[i]));
+    }
+}
+
+void table_print_at_indexes(table_t *self, int *indexes, int n)
+{
+    char buf[128];
+    printf("Table, indexed[%d]:\n", self->size);
+    print_header();
+    for (int i = 0; i < n; i++)
+    {
+        int index = indexes[i];
+        printf("%d, %s\n", index, book_show(buf, &self->books[index]));
     }
 }
 
@@ -81,37 +98,64 @@ void table_print_proxy(table_t *self)
     }
 }
 
+void table_print_key_table(table_t *self)
+{
+    printf("Key table [%d]:\n", self->size);
+    print_keys_header();
+    for (int i = 0; i < self->size; i++)
+    {
+        char *key_str = key_show(&self->keys[i]);
+        printf("%s\n", key_str);
+        free(key_str);
+    }
+}
+
 void table_update_keys(table_t *self, int type)
 {
     for(int i = 0; i < self->size; i++)
     {
-
-        void *key_ptr = NULL;
-        switch (type)
-        {
-            case key_lastname:
-                key_ptr = self->books[i].lastname;
-                break;
-            case key_title:
-                key_ptr = self->books[i].title;
-                break;
-            case key_publisher:
-                key_ptr = self->books[i].publisher;
-                break;
-            case key_pages:
-                key_ptr = &self->books[i].pages;
-                break;
-            case key_type:
-                key_ptr = &self->books[i].type;
-                break;
-        }
-        self->keys[i] = key_new(type, key_ptr, i);
+        self->keys[i] = book_get_key(&self->books[i], type);
+        self->keys[i].pos_actual = i;
     }
 }
 
-void table_sort_keys(table_t *self)
+void table_sort_keys(table_t *self, sort_func_t sort)
 {
-    qsort(self->keys, self->size, sizeof(book_key_t), key_cmp);
+    sort(self->keys, self->size, sizeof(book_key_t), key_cmp);
     for (int i = 0; i < self->size; i++)
         self->keys[i].pos_fake = i;
+}
+
+void table_sort(table_t *self, sort_func_t sort, int type)
+{
+    sort(self->books, self->size, sizeof(book_t), book_cmp_f(type));
+}
+
+int *table_filter(table_t *self, book_key_t *key, int *n)
+{
+    *n = 0;
+    int key_type = key->type;
+    int *indexes = malloc(self->size * sizeof(int));
+    for (int i = 0; i < self->size; i++)
+    {
+        book_key_t book_key = book_get_key(&self->books[i], key_type);
+        if (key_cmp(&book_key, key) == 0)
+            indexes[(*n)++] = i;
+    }
+    return indexes;
+}
+
+void table_remove(table_t *self, int *indexes, int n)
+{
+    table_t new_table = table_new(self->size - n);
+    int indexes_index = 0;
+    for (int i = 0; i < self->size; i++)
+    {
+        if (i == indexes[indexes_index])
+            indexes_index++;
+        else
+            table_insert(&new_table, self->books[i]);
+    }
+    table_delete(self);
+    *self = new_table;
 }
