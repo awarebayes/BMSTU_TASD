@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "table.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #define EXIT_CHOICE 123
@@ -50,6 +51,28 @@ book_key_t get_key()
     return key_dummy(type, ptr);
 }
 
+sort_func_t choose_sort()
+{
+    int choice = -1;
+    while (choice != 0 && choice != 1)
+    {
+        printf("How would you like to sort?\n");
+        printf("0. Bubble sort, O(n^2)\n");
+        printf("1. QSort, O(nlogn)\n");
+        scanf("%d", &choice);
+    }
+    if (choice == 0)
+        return insert_sort;
+    return qsort;
+}
+
+void ask_update_key_table(table_t *table, int *update_flag)
+{
+    int type = choose_key_type();
+    table_update_keys(table, type);
+    *update_flag = 0;
+}
+
 void act_on_table(table_t *table)
 {
     int choice = 0;
@@ -69,21 +92,26 @@ void act_on_table(table_t *table)
     book_key_t key = {0};
     int n = 0;
     int *indexes = NULL;
+    int need_update = 1;
     while (choice != EXIT_CHOICE)
     {
         printf("\n");
         choice = get_choice(sizeof(choices) / sizeof(char *), choices);
+        printf("\n");
         switch (choice)
         {
         case 0:
             ec = ok;
             FILE *f = fopen("../tests/input.txt", "r");
             *table = table_read_file(f, 8, &ec);
+            need_update = 1;
             break;
         case 1:
             table_print(table);
             break;
         case 2:
+            if (need_update)
+                ask_update_key_table(table, &need_update);
             table_print_key_table(table);
             break;
         case 3:
@@ -96,17 +124,22 @@ void act_on_table(table_t *table)
                 table_insert(table, book);
             else
                 printf("Occured error with code: %d\n", ec);
+            need_update = 1;
             break;
         case 5:
             type = choose_key_type();
             table_update_keys(table, type);
+            need_update = 0;
             break;
         case 6:
             type = choose_key_type();
-            table_sort(table, qsort, type);
+            table_sort(table, choose_sort(), type);
+            need_update = 1;
             break;
         case 7:
-            table_sort_keys(table, qsort);
+            if (need_update)
+                ask_update_key_table(table, &need_update);
+            table_sort_keys(table, choose_sort());
             break;
         case 8:
             key = get_key();

@@ -54,7 +54,7 @@ table_t table_read_file(FILE *fin, int n, int *ec)
 
 void print_header()
 {
-    printf("index, lastname, title, publisher, pages, type\n");
+    printf("index, pages, type, title, author, publisher\n");
 }
 
 void print_keys_header()
@@ -69,19 +69,19 @@ void table_print(table_t *self)
     print_header();
     for (int i = 0; i < self->size; i++)
     {
-        printf("%d, %s\n", i, book_show(buf, &self->books[i]));
+        printf("%-5d, %s\n", i, book_show(buf, &self->books[i]));
     }
 }
 
 void table_print_at_indexes(table_t *self, int *indexes, int n)
 {
     char buf[128];
-    printf("Table, indexed[%d]:\n", self->size);
+    printf("Table, indexed[%d of %d]:\n", n, self->size);
     print_header();
     for (int i = 0; i < n; i++)
     {
         int index = indexes[i];
-        printf("%d, %s\n", index, book_show(buf, &self->books[index]));
+        printf("%-5d, %s\n", index, book_show(buf, &self->books[index]));
     }
 }
 

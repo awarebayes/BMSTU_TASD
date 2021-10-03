@@ -13,7 +13,6 @@ typedef struct
     int capacity;
 } table_t;
 
-typedef void (*sort_func_t)(void *base, size_t nmemb, size_t size, cmp_func_t);
 
 table_t table_new(int size);
 void table_delete(table_t *self);

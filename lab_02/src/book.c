@@ -96,23 +96,11 @@ book_t book_read(FILE *fin, FILE *fout, int *ec)
 
 char *book_show(char *buf, book_t *book)
 {
-    sprintf(buf, "%s, %s, %s, %d, %d", book->lastname, book->title, book->publisher, book->pages, book->type);
+    sprintf(buf, "%-4d, %-5d, %-16s, %s, %s", book->pages, book->type, book->title, book->lastname, book->publisher);
     return buf;
 }
 
-int str_cmp(const void *a, const void *b)
-{
-    char *s1 = (char*)a;
-    char *s2 = (char*)b;
-    return strcmp(s1, s2);
-}
 
-int int_cmp(const void *a, const void *b)
-{
-    int *i1 = (int*)a;
-    int *i2 = (int*)b;
-    return *i1-*i2;
-}
 
 int book_cmp_lastname(const void *a, const void *b)
 {
