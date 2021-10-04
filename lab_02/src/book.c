@@ -1,33 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "book.h"
+#include "util.h"
 
-#define BUFFER_SIZE 64
-
-void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
-{
-    if (fout)
-        fprintf(fout, "%s", hint_msg);
-    fgets(target, BUFFER_SIZE, fin);
-    if (ferror(fin))
-        *ec = input_err;
-    else
-    {
-        char *newline = strchr(target, '\n');
-        if (newline != NULL)
-            *newline = '\0'; // delete \n
-    }
-}
-
-void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
-{
-    char buffer[BUFFER_SIZE];
-    if (fout)
-        fprintf(fout, "%s", hint_msg);
-    fgets(buffer, BUFFER_SIZE, fin);
-    if (sscanf(buffer, "%d", target) != 1)
-        *ec = input_err;
-}
 
 tech_book_t read_tech_book(FILE *fin, FILE *fout, int *ec)
 {
@@ -96,11 +71,20 @@ book_t book_read(FILE *fin, FILE *fout, int *ec)
 
 char *book_show(char *buf, book_t *book)
 {
-    sprintf(buf, "%-4d, %-5d, %-16s, %s, %s", book->pages, book->type, book->title, book->lastname, book->publisher);
+    sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s", book->pages, book->type, book->title, book->lastname, book->publisher);
     return buf;
 }
 
-
+book_t book_random()
+{
+    book_t book = {0};
+    book.type = rand() % 3;
+    book.pages = rand() % 10000;
+    rand_string(book.lastname, rand() % 63);
+    rand_string(book.publisher, rand() % 63);
+    rand_string(book.title, rand() % 63);
+    return book;
+}
 
 int book_cmp_lastname(const void *a, const void *b)
 {

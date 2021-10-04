@@ -18,7 +18,8 @@ int get_choice(int argc, char **argv)
         }
         printf("%d: EXIT\n", EXIT_CHOICE);
         printf("Your choice: ");
-        scanf("%d", &choice);
+        if (scanf("%d", &choice) != 1)
+            continue;
         if (choice < 0 || (choice > argc-1 && choice != EXIT_CHOICE))
             choice = -1;
     }
@@ -103,8 +104,16 @@ void act_on_table(table_t *table)
         case 0:
             ec = ok;
             FILE *f = fopen("../tests/input.txt", "r");
-            *table = table_read_file(f, 8, &ec);
+            if (!f)
+                ec = file_err;
+            else
+                *table = table_read_file(f, 8, &ec);
             need_update = 1;
+            if (ec != ok)
+            {
+                printf("On read an error occured with code: %d\n", ec);
+                return;
+            }
             break;
         case 1:
             table_print(table);

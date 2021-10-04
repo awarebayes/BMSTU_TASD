@@ -45,16 +45,18 @@ table_t table_read_file(FILE *fin, int n, int *ec)
 
     for (int i = 0; i < n; i++)
     {
-         book = book_read(fin, NULL, ec);
+        book = book_read(fin, NULL, ec);
         table_insert(&table, book);
     }
 
     return table;
 }
 
-void print_header()
+void print_header(int index)
 {
-    printf("index, pages, type, title, author, publisher\n");
+    if (index)
+        printf("index, ");
+    printf("pages, type, %-40s, %-30s, %-20s\n", "title", "author", "publisher");
 }
 
 void print_keys_header()
@@ -66,7 +68,7 @@ void table_print(table_t *self)
 {
     char buf[128];
     printf("Table [%d]:\n", self->size);
-    print_header();
+    print_header(1);
     for (int i = 0; i < self->size; i++)
     {
         printf("%-5d, %s\n", i, book_show(buf, &self->books[i]));
@@ -77,7 +79,7 @@ void table_print_at_indexes(table_t *self, int *indexes, int n)
 {
     char buf[128];
     printf("Table, indexed[%d of %d]:\n", n, self->size);
-    print_header();
+    print_header(1);
     for (int i = 0; i < n; i++)
     {
         int index = indexes[i];
@@ -89,12 +91,12 @@ void table_print_proxy(table_t *self)
 {
     char buf[128];
     printf("Table [%d]:\n", self->size);
-    print_header();
+    print_header(1);
     int idx = 0;
     for (int i = 0; i < self->size; i++)
     {
         idx = self->keys[i].pos_actual;
-        printf("%s\n", book_show(buf, &self->books[idx]));
+        printf("%-5d, %s\n", idx, book_show(buf, &self->books[idx]));
     }
 }
 

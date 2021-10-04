@@ -1,6 +1,10 @@
 #include "util.h"
+#include "book.h"
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+
+#define "SORTING_TYPE" "1" 
 
 int str_cmp(const void *a, const void *b)
 {
@@ -43,4 +47,89 @@ void insert_sort(void *base, size_t nitems, size_t size, int (*cmp)(const void*,
         }
         memswap(max, cbase + size * j, size);
     }
+}
+
+void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
+{
+    if (fout)
+        fprintf(fout, "%s", hint_msg);
+    fgets(target, BUFFER_SIZE, fin);
+    if (strcmp(target, "\n") == 0)
+        fgets(target, BUFFER_SIZE, fin);
+    if (strlen(target) >= SSIZE)
+        *ec = input_err;
+    if (ferror(fin))
+        *ec = input_err;
+    else
+    {
+        char *newline = strchr(target, '\n');
+        if (newline != NULL)
+            *newline = '\0'; // delete \n
+    }
+}
+
+void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
+{
+    char buffer[BUFFER_SIZE];
+    if (fout)
+        fprintf(fout, "%s", hint_msg);
+    fgets(buffer, BUFFER_SIZE, fin);
+    if (sscanf(buffer, "%d", target) != 1)
+        *ec = input_err;
+    if (*target < 0)
+        *ec = input_err;
+}
+
+char *rand_string(char *str, size_t size)
+{
+    const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK .!@#$";
+    if (size) {
+        --size;
+        for (size_t n = 0; n < size; n++) {
+            int key = rand() % (int) (sizeof charset - 1);
+            str[n] = charset[key];
+        }
+        str[size] = '\0';
+    }
+    return str;
+}
+
+int sorting_time_table_ns(int size, sort_func_t sort)
+{
+    table_t table = table_new(size);
+    for (int i = 0; i < size; i++)
+        table_insert(table, book_random());
+
+    clock_t start = clock();
+    table_sort(table, sort, SORTING_TYPE);
+    clock_t end = clock();
+    int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
+    table_delete(table);
+    return ns;
+}
+
+int sorting_time_keys_ns(int size, sort_func_t sort)
+{
+    table_t table = table_new(size);
+    for (int i = 0; i < size; i++)
+        table_insert(table, book_random());
+    table_update_keys(table, SORTING_TYPE);
+
+    clock_t start = clock();
+    table_sort_keys(table, sort);
+    clock_t end = clock();
+    int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
+    table_delete(table);
+    return ns;
+}
+
+
+int sorting_time_table_mean(measure_f measure, sort_func_t func, int size, int times)
+{
+    long int sum = 0;
+    for (int i = 0; i < times; i++)
+    {
+        sum += (long int)measure(func, size);
+    }
+    return (int)(sum / (long int)times);
 }
