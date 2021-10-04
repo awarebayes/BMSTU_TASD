@@ -85,5 +85,6 @@ book_t book_read(FILE *fin, FILE *fout, int *ec);
 char *book_show(char *buf, book_t *book);
 cmp_func_t book_cmp_f(int type);
 book_key_t book_get_key(book_t *self, int type);
+book_t book_random();
 
 #endif 

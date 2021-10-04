@@ -22,7 +22,6 @@ typedef struct
     int type;
     int base_type;
     int pos_actual;
-    int pos_fake;
 } book_key_t;
 
 book_key_t key_new(int type, void* key, int pos_actual);

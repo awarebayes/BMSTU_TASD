@@ -1,10 +1,11 @@
 #include "util.h"
 #include "book.h"
+#include "table.h"
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define "SORTING_TYPE" "1" 
+#define SORTING_TYPE 1
 
 int str_cmp(const void *a, const void *b)
 {
@@ -86,7 +87,7 @@ char *rand_string(char *str, size_t size)
     if (size) {
         --size;
         for (size_t n = 0; n < size; n++) {
-            int key = rand() % (int) (sizeof charset - 1);
+            int key = random() % (int) (sizeof charset - 1);
             str[n] = charset[key];
         }
         str[size] = '\0';
@@ -98,13 +99,14 @@ int sorting_time_table_ns(int size, sort_func_t sort)
 {
     table_t table = table_new(size);
     for (int i = 0; i < size; i++)
-        table_insert(table, book_random());
+        table_insert(&table, book_random());
 
-    clock_t start = clock();
-    table_sort(table, sort, SORTING_TYPE);
-    clock_t end = clock();
-    int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
-    table_delete(table);
+    int64_t start = ticks();
+    table_sort(&table, sort, SORTING_TYPE);
+    int64_t end = ticks();
+    //int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
+    int ns = end - start;
+    table_delete(&table);
     return ns;
 }
 
@@ -112,24 +114,39 @@ int sorting_time_keys_ns(int size, sort_func_t sort)
 {
     table_t table = table_new(size);
     for (int i = 0; i < size; i++)
-        table_insert(table, book_random());
-    table_update_keys(table, SORTING_TYPE);
+        table_insert(&table, book_random());
+    table_update_keys(&table, SORTING_TYPE);
 
-    clock_t start = clock();
-    table_sort_keys(table, sort);
-    clock_t end = clock();
-    int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
-    table_delete(table);
+    int64_t start = ticks();
+    table_sort_keys(&table, sort);
+    int64_t end = ticks();
+    int ns = end - start;
+    table_delete(&table);
     return ns;
 }
 
 
-int sorting_time_table_mean(measure_f measure, sort_func_t func, int size, int times)
+int sorting_time_mean(measure_f measure, sort_func_t func, int size, int times)
 {
     long int sum = 0;
     for (int i = 0; i < times; i++)
     {
-        sum += (long int)measure(func, size);
+        sum += (long int)measure(size, func);
     }
     return (int)(sum / (long int)times);
+}
+
+int64_t ticks(void)
+{
+    int32_t h, l;
+    __asm__ __volatile__ (
+        "rdtsc\n"
+        "movl %%edx, %0\n"
+        "movl %%eax, %1\n"
+        : "=r" (h), "=r" (l)
+        :: "%rax", "%rbx", "%rcx", "%rdx"
+        );
+
+    int64_t t = ((int64_t)h << 32) | l;
+    return t;
 }

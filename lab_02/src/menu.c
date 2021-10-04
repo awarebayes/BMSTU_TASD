@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define EXIT_CHOICE 123
+#define TIMES 50
 
 char *key_types[] = {"Lastname", "Title", "Publisher", "Pages", "Type"};
 
@@ -74,6 +75,62 @@ void ask_update_key_table(table_t *table, int *update_flag)
     *update_flag = 0;
 }
 
+void menu_filter(table_t *table)
+{
+    book_key_t key = get_key();
+    int n = 0;
+    int *indexes = table_filter(table, &key, &n);
+    table_print_at_indexes(table, indexes, n);
+    key_delete(&key);
+    free(indexes);
+}
+
+void menu_remove(table_t *table)
+{
+    book_key_t key = get_key();
+    int n = 0;
+    int *indexes = table_filter(table, &key, &n);
+    table_remove(table, indexes, n);
+    key_delete(&key);
+    free(indexes);
+}
+
+void menu_profile()
+{
+    int sizes[] = {50, 100, 300, 500, 1000};
+    int n = sizeof(sizes)/sizeof(sizes[0]);
+    int main_ins[n];
+    int main_qsort[n];
+    int keys_ins[n];
+    int keys_qsort[n];
+
+    // Main table
+    for (int i = 0; i < n; i++)
+        main_ins[i] = sorting_time_mean(sorting_time_table_ns, insert_sort, sizes[i], TIMES);
+    for (int i = 0; i < n; i++)
+        main_qsort[i] = sorting_time_mean(sorting_time_table_ns, qsort, sizes[i], TIMES);
+    
+    // Keys
+    for (int i = 0; i < n; i++)
+        keys_ins[i] = sorting_time_mean(sorting_time_keys_ns, insert_sort, sizes[i], TIMES);
+    for (int i = 0; i < n; i++)
+        keys_qsort[i] = sorting_time_mean(sorting_time_keys_ns, qsort, sizes[i], TIMES);
+
+    printf("Time (ticks)\n");
+    printf("%-3s, %-5s, %-10s, %-10s, %-10s, %-10s\n", "idx", "size", "main_ins", "main_qsort", "keys_ins", "keys_qsort");
+    for (int i = 0; i < n; i++)
+        printf("%-3d, %-5d, %-10d, %-10d, %-10d, %-10d\n", i, sizes[i], main_ins[i], main_qsort[i], keys_ins[i], keys_qsort[i]);
+
+    printf("\nMemory (bytes)\n");
+    printf("%-7s, %-10s, %-10s\n", "size(n)", "table", "keys");
+    for (int i = 0; i < n; i++)
+    {
+        table_t t = table_new(sizes[i]);
+        printf("%-7d, %-10ld, %-10ld\n", sizes[i], table_size(&t), table_keys_size(&t));
+        table_delete(&t);
+    }
+}
+
 void act_on_table(table_t *table)
 {
     int choice = 0;
@@ -87,12 +144,10 @@ void act_on_table(table_t *table)
         "Sort table",
         "Sort key table",
         "Filter entries",
-        "Delete entry"};
+        "Delete entry",
+        "Profile"};
     int type = 0;
     int ec = ok;
-    book_key_t key = {0};
-    int n = 0;
-    int *indexes = NULL;
     int need_update = 1;
     while (choice != EXIT_CHOICE)
     {
@@ -151,20 +206,14 @@ void act_on_table(table_t *table)
             table_sort_keys(table, choose_sort());
             break;
         case 8:
-            key = get_key();
-            n = 0;
-            indexes = table_filter(table, &key, &n);
-            table_print_at_indexes(table, indexes, n);
-            key_delete(&key);
-            free(indexes);
+            menu_filter(table);
             break;
         case 9:
-            key = get_key();
-            n = 0;
-            indexes = table_filter(table, &key, &n);
-            table_remove(table, indexes, n);
-            key_delete(&key);
-            free(indexes); 
+            menu_remove(table);
+            break;
+        case 10:
+            menu_profile();
+            break;
         default:
             break;
         }

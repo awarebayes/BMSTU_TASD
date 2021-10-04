@@ -107,10 +107,22 @@ void table_print_key_table(table_t *self)
     for (int i = 0; i < self->size; i++)
     {
         char *key_str = key_show(&self->keys[i]);
-        printf("%s\n", key_str);
+        printf("%d, %s\n", i, key_str);
         free(key_str);
     }
 }
+
+size_t table_size(table_t *self)
+{
+    return self->capacity * sizeof(self->books[0]) + sizeof(self->keys[0]) * self->capacity + sizeof(self->size) + sizeof(self->capacity);
+}
+
+size_t table_keys_size(table_t *self)
+{
+    return sizeof(self->keys[0]) * self->capacity + sizeof(self->size);
+}
+
+
 
 void table_update_keys(table_t *self, int type)
 {
@@ -124,8 +136,6 @@ void table_update_keys(table_t *self, int type)
 void table_sort_keys(table_t *self, sort_func_t sort)
 {
     sort(self->keys, self->size, sizeof(book_key_t), key_cmp);
-    for (int i = 0; i < self->size; i++)
-        self->keys[i].pos_fake = i;
 }
 
 void table_sort(table_t *self, sort_func_t sort, int type)

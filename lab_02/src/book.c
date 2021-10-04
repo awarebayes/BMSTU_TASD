@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "book.h"
 #include "util.h"
 
@@ -78,11 +79,11 @@ char *book_show(char *buf, book_t *book)
 book_t book_random()
 {
     book_t book = {0};
-    book.type = rand() % 3;
-    book.pages = rand() % 10000;
-    rand_string(book.lastname, rand() % 63);
-    rand_string(book.publisher, rand() % 63);
-    rand_string(book.title, rand() % 63);
+    book.type = random() % 3;
+    book.pages = random() % 10000;
+    rand_string(book.lastname, 1 + random() % 62);
+    rand_string(book.publisher, 1 + random() % 62);
+    rand_string(book.title, 1 + random() % 62);
     return book;
 }
 

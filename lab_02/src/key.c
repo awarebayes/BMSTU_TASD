@@ -9,7 +9,6 @@ book_key_t key_new(int type, void* key, int pos_actual)
     self.type = type;
     self.base_type = get_base_type(type);
     self.pos_actual = pos_actual;
-    self.pos_fake = pos_actual;
     self.key = key;
     return self;
 }
@@ -32,7 +31,7 @@ int key_cmp(const void *a, const void *b)
 {
     book_key_t *k1 = (book_key_t *)a;
     book_key_t *k2 = (book_key_t *)b;
-    assert(k1->type == k2->type);
+    // assert(k1->type == k2->type);
     switch (k1->base_type)
     {
     case key_string:
@@ -57,7 +56,7 @@ char *key_show(book_key_t *self)
         asprintf(&value, "%d", *((int*)self->key));
         break;
     }
-    asprintf(&buf, "%d, %d, %s, %d", self->pos_fake, self->pos_actual, value, self->type);
+    asprintf(&buf, "%d, %s, %d", self->pos_actual, value, self->type);
     free(value);
     return buf;
 }
