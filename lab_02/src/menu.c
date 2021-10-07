@@ -13,15 +13,19 @@ int get_choice(int argc, char **argv)
     int choice = -1;
     while (choice < 0)
     {
+        int ec = 0;
         for (int i = 0; i < argc; i++)
         {
             printf("%d: %s\n", i, argv[i]);
         }
         printf("%d: EXIT\n", EXIT_CHOICE);
-        printf("Your choice: ");
-        if (scanf("%d", &choice) != 1)
+        read_int(stdout, "Your choice: ", &choice, stdin, &ec);
+        if (ec)
+        {
+            choice = -1;
             continue;
-        if (choice < 0 || (choice > argc-1 && choice != EXIT_CHOICE))
+        }
+        if (choice < 0 || (choice > argc - 1 && choice != EXIT_CHOICE))
             choice = -1;
     }
     return choice;
@@ -38,17 +42,23 @@ book_key_t get_key()
     int type = choose_key_type();
     int base_type = get_base_type(type);
     void *ptr;
+    int ec = ok;
     if (base_type == key_int)
     {
         int *a = malloc(sizeof(int));
-        scanf("%d", a);
+        read_int(stdout, "Your key (int): ", a, stdin, &ec);
         ptr = a;
     }
     if (base_type == key_string)
     {
         char *buf = malloc(sizeof(char) * 128);
-        scanf("%s", buf);
+        read_str(stdout, "Your key (str): ", buf, stdin, &ec);
         ptr = buf;
+    }
+    if (ec)
+    {
+        free(ptr);
+        return get_key();
     }
     return key_dummy(type, ptr);
 }
@@ -56,14 +66,18 @@ book_key_t get_key()
 sort_func_t choose_sort()
 {
     int choice = -1;
+    int ec = ok;
     while (choice != 0 && choice != 1)
     {
         printf("How would you like to sort?\n");
         printf("0. Bubble sort, O(n^2)\n");
         printf("1. QSort, O(nlogn)\n");
+        read_int(stdout, "Your sort (int): ", &choice, stdin, &ec);
         scanf("%d", &choice);
     }
-    if (choice == 0)
+    if (ec)
+        return choose_sort();
+    else if (choice == 0)
         return insert_sort;
     return qsort;
 }
@@ -179,6 +193,8 @@ void act_on_table(table_t *table)
             table_print_key_table(table);
             break;
         case 3:
+            if (need_update)
+                ask_update_key_table(table, &need_update);
             table_print_proxy(table);
             break;
         case 4:

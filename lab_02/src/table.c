@@ -66,6 +66,11 @@ void print_keys_header()
 
 void table_print(table_t *self)
 {
+    if (self->size == 0)
+    {
+        printf("*Empty table*\n");
+        return;
+    }
     char buf[128];
     printf("Table [%d]:\n", self->size);
     print_header(1);
@@ -78,6 +83,11 @@ void table_print(table_t *self)
 void table_print_at_indexes(table_t *self, int *indexes, int n)
 {
     char buf[128];
+    if (n == 0)
+    {
+        printf("*Empty table*\n");
+        return;
+    }
     printf("Table, indexed[%d of %d]:\n", n, self->size);
     print_header(1);
     for (int i = 0; i < n; i++)
@@ -89,6 +99,11 @@ void table_print_at_indexes(table_t *self, int *indexes, int n)
 
 void table_print_proxy(table_t *self)
 {
+    if (self->size == 0)
+    {
+        printf("*Empty table*\n");
+        return;
+    }
     char buf[128];
     printf("Table [%d]:\n", self->size);
     print_header(1);

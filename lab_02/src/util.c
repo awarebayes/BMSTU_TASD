@@ -72,10 +72,14 @@ void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
 void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
 {
     char buffer[BUFFER_SIZE];
+    char temp[BUFFER_SIZE];
+    int tempint;
     if (fout)
         fprintf(fout, "%s", hint_msg);
     fgets(buffer, BUFFER_SIZE, fin);
     if (sscanf(buffer, "%d", target) != 1)
+        *ec = input_err;
+    if (sscanf(buffer, "%d %s", &tempint, temp) == 2)
         *ec = input_err;
     if (*target < 0)
         *ec = input_err;
