@@ -1,12 +1,19 @@
 #ifndef __CONS_H__
 #define __CONS_H__
 
-typedef struct
+struct cons_t
 {
     int value;
     struct cons_t *next;
-} cons_t;
+};
 
+struct cons_t;
+typedef struct cons_t cons_t;
+
+cons_t *cons_new(int value);
 void cons_add(cons_t *self, int value);
+void cons_delete(cons_t *self);
+int cons_get(cons_t *self, int idx);
+int cons_next(cons_t *self);
 
 #endif // !__CONS_H__

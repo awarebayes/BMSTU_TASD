@@ -10,5 +10,6 @@ typedef struct {
 } matrix_t;
 
 int matrix_n_nonzero(matrix_t *self);
+matrix_t matrix_from_array(int **arr, int n, int m);
 
 #endif // !__MATRIX_H__

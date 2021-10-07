@@ -14,8 +14,26 @@
  * 3. Сравнить время выполнения операций и объем памяти при использовании 
  */
 
+#include "matrix.h"
+#include "sparse.h"
+
 int main()
 {
-    printf("Hello world!");
+    int mat[5][5] = {
+        {2, 0, 0, 2, 0},
+        {3,4,2,5,0},
+        {5,0,0,8,17},
+        {0,0,10,16,0},
+        {0,0,0,0,14}
+    };
+
+    int *out[5];
+    transform(out, &mat[0][0], 5, 5);
+
+    matrix_t matrix = matrix_from_array(out, 5, 5);
+    sparse_t sparse = sparse_from_matrix(&matrix);
+    sparse_print(&sparse);
+    sparse_print_pretty(&sparse);
+
     return 0;
 }
