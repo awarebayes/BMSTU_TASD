@@ -19,6 +19,7 @@ void table_delete(table_t *self);
 table_t table_realloc(table_t *self, int new_size);
 void table_insert(table_t *self, book_t book);
 table_t table_read_file(FILE *fin, int n, int *ec);
+void table_serialize_file(table_t *self, FILE *fout);
 void table_print(table_t *self);
 void table_print_at_indexes(table_t *self, int *indexes, int n);
 void table_update_keys(table_t *self, int type);

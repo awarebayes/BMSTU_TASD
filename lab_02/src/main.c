@@ -17,14 +17,8 @@
 int main()
 {
     int ec = ok;
-    FILE *f = fopen("../tests/input.txt", "r");
     table_t table = {0};
-    if (!f)
-        return file_err;
-    int n = 0;
-    read_int(NULL, "", &n, f, &ec);
-    if (!ec || n != 0)
-        table = table_read_file(f, n, &ec);
+    read_table_given_path(&table, "../tests/input.txt", &ec);
     if (!ec)
         act_on_table(&table);
     return ec;

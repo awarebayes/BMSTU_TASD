@@ -8,7 +8,7 @@
             "name": "gcc - Сборка и отладка активного файла",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/lab_03/build/main",
+            "program": "${workspaceFolder}/lab_02/build/main",
             "args": ["func_tests/pos_10_in.txt", "title", "Film four"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

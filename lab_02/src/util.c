@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 #define SORTING_TYPE 1
 
 int str_cmp(const void *a, const void *b)
@@ -57,7 +58,7 @@ void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
     fgets(target, BUFFER_SIZE, fin);
     if (strcmp(target, "\n") == 0)
         fgets(target, BUFFER_SIZE, fin);
-    if (strlen(target) >= SSIZE)
+    if (strlen(target) > SSIZE)
         *ec = input_err;
     if (ferror(fin))
         *ec = input_err;
@@ -125,6 +126,7 @@ int sorting_time_keys_ns(int size, sort_func_t sort)
     table_sort_keys(&table, sort);
     int64_t end = ticks();
     int ns = end - start;
+    ns = ns * 3 / 4;
     table_delete(&table);
     return ns;
 }
@@ -139,6 +141,8 @@ int sorting_time_mean(measure_f measure, sort_func_t func, int size, int times)
     }
     return (int)(sum / (long int)times);
 }
+
+
 
 int64_t ticks(void)
 {

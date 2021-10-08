@@ -20,6 +20,12 @@ tech_book_t read_tech_book(FILE *fin, FILE *fout, int *ec)
     return book;
 }
 
+char *tech_book_serialize(char *buf, tech_book_t *book)
+{
+    sprintf(buf, "%s\n%d\n%d", book->field, book->year, book->language);
+    return buf;
+}
+
 fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec)
 {
     fiction_book_t book = {0};
@@ -31,6 +37,12 @@ fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec)
     if (book.genre != genre_novel && book.genre != genre_poem && book.genre != genre_play)
         *ec = input_err;
     return book;
+}
+
+char *fiction_book_serialize(char *buf, fiction_book_t *book)
+{
+    sprintf(buf, "%d", book->genre);
+    return buf;
 }
 
 kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec)
@@ -46,13 +58,20 @@ kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec)
     return book;
 }
 
+
+char *kid_book_serialize(char *buf, kid_book_t *book)
+{
+    sprintf(buf, "%d", book->genre);
+    return buf;
+}
+
 book_t book_read(FILE *fin, FILE *fout, int *ec)
 {
     book_t book = {0};
     if (fout)
         fprintf(fout, "Inputting book_t\n");
 
-    read_str(fout, "Enter last name: ", book.lastname, fin, ec);
+    read_str(fout, "Enter lastname: ", book.lastname, fin, ec);
     read_str(fout, "Enter title: ", book.title, fin, ec);
     read_str(fout, "Enter publisher: ", book.publisher, fin, ec);
     read_int(fout, "Enter #pages: ", &book.pages, fin, ec);
@@ -73,6 +92,30 @@ book_t book_read(FILE *fin, FILE *fout, int *ec)
 char *book_show(char *buf, book_t *book)
 {
     sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s", book->pages, book->type, book->title, book->lastname, book->publisher);
+    return buf;
+}
+
+char *book_serialize(char *buf, book_t *book)
+{
+    char var_info[128];
+    switch (book->type) 
+    {
+    case tech_o:
+        tech_book_serialize(var_info, &book->kind.tech);
+        break;
+
+    case fiction_o:
+        fiction_book_serialize(var_info, &book->kind.fiction);
+        break;
+
+    case kid_o:
+        kid_book_serialize(var_info, &book->kind.kid);
+        break;
+
+    default:
+        break;
+    }
+    sprintf(buf, "%s\n%s\n%s\n%d\n%d\n%s\n", book->lastname, book->title, book->publisher, book->pages, book->type, var_info);
     return buf;
 }
 
