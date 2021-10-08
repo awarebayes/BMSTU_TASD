@@ -52,6 +52,17 @@ table_t table_read_file(FILE *fin, int n, int *ec)
     return table;
 }
 
+void table_serialize_file(table_t *self, FILE *fout)
+{
+    char buf[1024];
+    fprintf(fout, "%d\n", self->size);
+    for (int i = 0; i < self->size; i++)
+    {
+        book_serialize(buf, &self->books[i]);
+        fprintf(fout, "%s", buf);
+    }
+}
+
 void print_header(int index)
 {
     if (index)
@@ -71,7 +82,7 @@ void table_print(table_t *self)
         printf("*Empty table*\n");
         return;
     }
-    char buf[128];
+    char buf[256];
     printf("Table [%d]:\n", self->size);
     print_header(1);
     for (int i = 0; i < self->size; i++)
@@ -82,7 +93,7 @@ void table_print(table_t *self)
 
 void table_print_at_indexes(table_t *self, int *indexes, int n)
 {
-    char buf[128];
+    char buf[256];
     if (n == 0)
     {
         printf("*Empty table*\n");
@@ -104,7 +115,7 @@ void table_print_proxy(table_t *self)
         printf("*Empty table*\n");
         return;
     }
-    char buf[128];
+    char buf[256];
     printf("Table [%d]:\n", self->size);
     print_header(1);
     int idx = 0;

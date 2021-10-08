@@ -94,7 +94,10 @@ void menu_filter(table_t *table)
     book_key_t key = get_key();
     int n = 0;
     int *indexes = table_filter(table, &key, &n);
-    table_print_at_indexes(table, indexes, n);
+    if (n != 0)
+        table_print_at_indexes(table, indexes, n);
+    else
+        printf("No matches found!\n");
     key_delete(&key);
     free(indexes);
 }
@@ -104,9 +107,60 @@ void menu_remove(table_t *table)
     book_key_t key = get_key();
     int n = 0;
     int *indexes = table_filter(table, &key, &n);
-    table_remove(table, indexes, n);
+    if (n != 0)
+        table_remove(table, indexes, n);
+    else
+        printf("Nothing to remove!\n");
     key_delete(&key);
     free(indexes);
+}
+
+void read_table_given_path(table_t *table, char *path, int *ec)
+{
+    int n = 0;
+    table_t temp_table = {0};
+    FILE *f = fopen(path, "r");
+    if (f == NULL)
+        *ec = file_err;
+    if (!*ec)
+    {
+        read_int(NULL, "", &n, f, ec);
+        if (n == 0)
+            *ec = file_err;
+        temp_table = table_read_file(f, n, ec);
+    }
+    if (!(*ec))
+        *table = temp_table;
+    if(f)
+        fclose(f);
+    if (*ec != ok)
+    {
+        printf("On read an error occured with code: %d\n", *ec);
+        return;
+    }
+}
+
+void menu_read_file(table_t *table, int *ec)
+{
+    char fstr[1024];
+    read_str(stdout, "File path: ", fstr, stdin, ec);
+    read_table_given_path(table, fstr, ec);
+}
+
+void menu_serialize_file(table_t *table, int *ec)
+{
+    char fstr[1024];
+    read_str(stdout, "File path: ", fstr, stdin, ec);
+
+    FILE *f = fopen(fstr, "w");
+    if (f == NULL)
+        *ec = file_err;
+    if (!(*ec))
+        table_serialize_file(table, f);
+    if (*ec)
+        printf("Unable to serialize!\n");
+    if (f)
+        fclose(f);
 }
 
 void menu_profile()
@@ -159,7 +213,9 @@ void act_on_table(table_t *table)
         "Sort key table",
         "Filter entries",
         "Delete entry",
-        "Profile"};
+        "Profile",
+        "Write table"
+        };
     int type = 0;
     int ec = ok;
     int need_update = 1;
@@ -172,17 +228,7 @@ void act_on_table(table_t *table)
         {
         case 0:
             ec = ok;
-            FILE *f = fopen("../tests/input.txt", "r");
-            if (!f)
-                ec = file_err;
-            else
-                *table = table_read_file(f, 8, &ec);
-            need_update = 1;
-            if (ec != ok)
-            {
-                printf("On read an error occured with code: %d\n", ec);
-                return;
-            }
+            menu_read_file(table, &ec);
             break;
         case 1:
             table_print(table);
@@ -229,6 +275,12 @@ void act_on_table(table_t *table)
             break;
         case 10:
             menu_profile();
+            break;
+        case 11:
+            ec = ok;
+            menu_serialize_file(table, &ec);
+            if (ec)
+                printf("Problem serializing...\n");
             break;
         default:
             break;
