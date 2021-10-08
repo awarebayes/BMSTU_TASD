@@ -19,5 +19,6 @@ typedef struct
 sparse_t sparse_from_matrix(matrix_t *m);
 void sparse_print(sparse_t *self);
 void sparse_print_pretty(sparse_t *self);
+sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector);
 
 #endif // !__SPARSE_H__

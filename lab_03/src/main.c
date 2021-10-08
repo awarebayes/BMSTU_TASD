@@ -19,21 +19,29 @@
 
 int main()
 {
-    int mat[5][5] = {
-        {2, 0, 0, 2, 0},
-        {3,4,2,5,0},
-        {5,0,0,8,17},
-        {0,0,10,16,0},
-        {0,0,0,0,14}
-    };
+    int mat[4 * 4] = {
+        1, 2, 0 ,3,
+        4, 3, 6, 0,
+        8, 1, 0, 5,
+        0, 0, 0, 0,
+        };
 
-    int *out[5];
-    transform(out, &mat[0][0], 5, 5);
+    int vec[1 * 4] = {1, 3, 0, 5};
 
-    matrix_t matrix = matrix_from_array(out, 5, 5);
-    sparse_t sparse = sparse_from_matrix(&matrix);
-    sparse_print(&sparse);
-    sparse_print_pretty(&sparse);
+    matrix_t matrix = matrix_from_array(mat, 4, 4);
+    matrix_t vector = matrix_from_array(vec, 4, 1);
+    sparse_t smatrix = sparse_from_matrix(&matrix);
+    sparse_t svector = sparse_from_matrix(&vector);
+    matrix_delete(&matrix);
+    matrix_delete(&vector);
+
+    sparse_t sres = sparse_vector_product(&smatrix, &svector);
+    matrix_t res = matrix_vector_product(&matrix, &vector);
+
+    sparse_print(&sres);
+    sparse_print_pretty(&sres);
+    matrix_print(&res);
+    matrix_delete(&res);
 
     return 0;
 }

@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lab_03/build/main",
-            "args": ["func_tests/pos_10_in.txt", "title", "Film four"],
+            "args": "",
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
