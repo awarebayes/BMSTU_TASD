@@ -73,7 +73,6 @@ sort_func_t choose_sort()
         printf("0. Bubble sort, O(n^2)\n");
         printf("1. QSort, O(nlogn)\n");
         read_int(stdout, "Your sort (int): ", &choice, stdin, &ec);
-        scanf("%d", &choice);
     }
     if (ec)
         return choose_sort();
@@ -112,6 +111,35 @@ void menu_remove(table_t *table)
     else
         printf("Nothing to remove!\n");
     key_delete(&key);
+    free(indexes);
+}
+
+void menu_filter_year(table_t *table)
+{
+    int year = 0;
+    int ec = 0;
+    char book_buf[1024];
+    char field[1024];
+
+    do
+    {
+        read_int(stdout, "Your year (int): ", &year, stdin, &ec);
+        read_str(stdout, "Your field (str): ", field, stdin, &ec);
+    }
+    while (ec != 0);
+    int n = 0;
+    int *indexes = table_filter_tech_year(table, year, field, &n);
+    if (n != 0)
+    {
+        printf("Found %d books\n", n);
+        for (int i = 0; i < n; i++)
+        {
+            book_show(book_buf, &table->books[indexes[i]]);
+            printf("%s\n", book_buf);
+        }
+    }
+    else
+        printf("Nothing found!\n");
     free(indexes);
 }
 
@@ -167,10 +195,10 @@ void menu_profile()
 {
     int sizes[] = {50, 100, 300, 500, 1000};
     int n = sizeof(sizes)/sizeof(sizes[0]);
-    int main_ins[n];
-    int main_qsort[n];
-    int keys_ins[n];
-    int keys_qsort[n];
+    size_t main_ins[n];
+    size_t main_qsort[n];
+    size_t keys_ins[n];
+    size_t keys_qsort[n];
 
     // Main table
     for (int i = 0; i < n; i++)
@@ -187,7 +215,7 @@ void menu_profile()
     printf("Time (ticks)\n");
     printf("%-3s, %-5s, %-10s, %-10s, %-10s, %-10s\n", "idx", "size", "main_ins", "main_qsort", "keys_ins", "keys_qsort");
     for (int i = 0; i < n; i++)
-        printf("%-3d, %-5d, %-10d, %-10d, %-10d, %-10d\n", i, sizes[i], main_ins[i], main_qsort[i], keys_ins[i], keys_qsort[i]);
+        printf("%-3d, %-5d, %-10ld, %-10ld, %-10ld, %-10ld\n", i, sizes[i], main_ins[i], main_qsort[i], keys_ins[i], keys_qsort[i]);
 
     printf("\nMemory (bytes)\n");
     printf("%-7s, %-10s, %-10s\n", "size(n)", "table", "keys");
@@ -214,7 +242,8 @@ void act_on_table(table_t *table)
         "Filter entries",
         "Delete entry",
         "Profile",
-        "Write table"
+        "Write table",
+        "Filter tech books with specified year"
         };
     int type = 0;
     int ec = ok;
@@ -281,6 +310,9 @@ void act_on_table(table_t *table)
             menu_serialize_file(table, &ec);
             if (ec)
                 printf("Problem serializing...\n");
+            break;
+        case 12:
+            menu_filter_year(table);
             break;
         default:
             break;

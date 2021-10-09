@@ -74,13 +74,6 @@ enum err_t
     file_err,
 };
 
-
-//void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec);
-void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec);
-//tech_book_t read_tech_book(FILE *fout, FILE *fin, int *ec);
-//fiction_book_t read_fiction_book(FILE *fin, FILE *fout, int *ec);
-//kid_book_t read_kid_book(FILE *fin, FILE *fout, int *ec);
-
 book_t book_read(FILE *fin, FILE *fout, int *ec);
 char *book_show(char *buf, book_t *book);
 cmp_func_t book_cmp_f(int type);

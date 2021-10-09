@@ -24,7 +24,7 @@ typedef struct
     int pos_actual;
 } book_key_t;
 
-book_key_t key_new(int type, void* key, int pos_actual);
+book_key_t key_new(int type, void* key, size_t key_size, int pos_actual);
 void key_delete(book_key_t *self);
 int key_cmp(const void *a, const void *b);
 int get_base_type(int key_type);

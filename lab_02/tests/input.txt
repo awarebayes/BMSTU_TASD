@@ -58,7 +58,7 @@ Trolling
 1
 1
 Saveliev A B
-Kurs obchey fiziki
+Kurs obchey fiziki 1 2 3
 Universitet
 245
 0
@@ -66,7 +66,7 @@ Physics
 2009
 1
 Demidovich B N
-Sbornik zadach matana
+Sbornik zadach matana 3 4 5
 Izdatelstvo
 123
 0
@@ -74,7 +74,7 @@ Mathematics
 1994
 1
 Kurov B N
-Kak nujno progat na iu 7
+Kak nujno progat na iu 9
 MGTU
 1488
 0
@@ -82,13 +82,13 @@ Informatika
 2021
 0
 Jmischenko V A
-Baltika 9
+Baltika 7
 Aboba
 228
 1
 0
 Theodore J Kaczynski
-Industrial Society and its future
+Anti tech revolution
 NY Times
 133
 2
@@ -100,7 +100,65 @@ Some publisher
 1
 0
 Myself
-I honestly wish i did something else
+I am doing something else
+Samizdat
+1
+0
+Trolling
+1
+1
+Myself
+Something different as well
+Samizdat
+1
+0
+Trolling
+1
+1
+Saveliev A B
+Kurs obchey fiziki and alaliza
+Universitet
+245
+0
+Physics
+2009
+1
+Demidovich B N
+Sbornik zadach geometrii
+Izdatelstvo
+123
+0
+Mathematics
+1994
+1
+Kurov B N
+Kak ne nujno progat
+MGTU
+1488
+0
+Informatika
+2021
+0
+Jmischenko V A
+Battle rap
+Aboba
+228
+1
+0
+Theodore J Kaczynski
+Books are cringe
+NY Times
+133
+2
+0
+Some guy
+I dont know much about anything
+Some publisher
+1234
+1
+0
+Myself
+I honestly
 Samizdat
 1
 0
@@ -116,7 +174,7 @@ Trolling
 1
 1
 Saveliev A B
-Kurs obchey fiziki
+Milodrama
 Universitet
 245
 0
@@ -124,7 +182,7 @@ Physics
 2009
 1
 Demidovich B N
-Sbornik zadach matana
+Romantic kissing
 Izdatelstvo
 123
 0
@@ -132,7 +190,7 @@ Mathematics
 1994
 1
 Kurov B N
-Kak nujno progat na iu 7
+I love my homies
 MGTU
 1488
 0
@@ -140,13 +198,13 @@ Informatika
 2021
 0
 Jmischenko V A
-Baltika 9
+What
 Aboba
 228
 1
 0
 Theodore J Kaczynski
-Industrial Society and its future
+Industrial Society and its current
 NY Times
 133
 2
@@ -158,7 +216,7 @@ Some publisher
 1
 0
 Myself
-I honestly wish i did something else
+Knockout ultimate
 Samizdat
 1
 0
@@ -166,7 +224,7 @@ Trolling
 1
 1
 Myself
-Something different
+Somewhat coherent book
 Samizdat
 1
 0
@@ -174,7 +232,7 @@ Trolling
 1
 1
 Saveliev A B
-Kurs obchey fiziki
+Bad words
 Universitet
 245
 0
@@ -182,7 +240,7 @@ Physics
 2009
 1
 Demidovich B N
-Sbornik zadach matana
+OIWEQE
 Izdatelstvo
 123
 0
@@ -190,7 +248,7 @@ Mathematics
 1994
 1
 Kurov B N
-Kak nujno progat na iu 7
+Biba and boba
 MGTU
 1488
 0
@@ -198,25 +256,25 @@ Informatika
 2021
 0
 Jmischenko V A
-Baltika 9
+Anekdoti
 Aboba
 228
 1
 0
 Theodore J Kaczynski
-Industrial Society and its future
+Anegdoti and its future
 NY Times
 133
 2
 0
 Some guy
-I dont know much about books
+Minecraft steve
 Some publisher
 1234
 1
 0
 Myself
-I honestly wish i did something else
+OIOOOOOOO
 Samizdat
 1
 0
@@ -224,65 +282,7 @@ Trolling
 1
 1
 Myself
-Something different
-Samizdat
-1
-0
-Trolling
-1
-1
-Saveliev A B
-Kurs obchey fiziki
-Universitet
-245
-0
-Physics
-2009
-1
-Demidovich B N
-Sbornik zadach matana
-Izdatelstvo
-123
-0
-Mathematics
-1994
-1
-Kurov B N
-Kak nujno progat na iu 7
-MGTU
-1488
-0
-Informatika
-2021
-0
-Jmischenko V A
-Baltika 9
-Aboba
-228
-1
-0
-Theodore J Kaczynski
-Industrial Society and its future
-NY Times
-133
-2
-0
-Some guy
-I dont know much about books
-Some publisher
-1234
-1
-0
-Myself
-I honestly wish i did something else
-Samizdat
-1
-0
-Trolling
-1
-1
-Myself
-Something different
+Nazvanie
 Samizdat
 1
 0

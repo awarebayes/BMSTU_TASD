@@ -29,6 +29,7 @@ void table_print_proxy(table_t *self);
 void table_print_key_table(table_t *self);
 int *table_filter(table_t *self, book_key_t *key, int *n);
 void table_remove(table_t *self, int *indexes, int n);
+int *table_filter_tech_year(table_t *self, int year, char *field, int *n);
 size_t table_size(table_t *self);
 size_t table_keys_size(table_t *self);
 

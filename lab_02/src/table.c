@@ -17,6 +17,8 @@ table_t table_new(int capacity)
 void table_delete(table_t *self)
 {
     free(self->books);
+    for (int i = 0; i < self->size; i++)
+        key_delete(&self->keys[i]);
     free(self->keys);
 }
 
@@ -67,7 +69,7 @@ void print_header(int index)
 {
     if (index)
         printf("index, ");
-    printf("pages, type, %-40s, %-30s, %-20s\n", "title", "author", "publisher");
+    printf("pages, type, %-40s, %-30s, %-20s, %-5s, %-6s, %-20s\n", "title", "author", "publisher", "f1", "year", "field");
 }
 
 void print_keys_header()
@@ -178,6 +180,18 @@ int *table_filter(table_t *self, book_key_t *key, int *n)
     {
         book_key_t book_key = book_get_key(&self->books[i], key_type);
         if (key_cmp(&book_key, key) == 0)
+            indexes[(*n)++] = i;
+    }
+    return indexes;
+}
+
+int *table_filter_tech_year(table_t *self, int year, char *field, int *n)
+{
+    *n = 0;
+    int *indexes = malloc(self->size * sizeof(int));
+    for (int i = 0; i < self->size; i++)
+    {
+        if (self->books[i].type == tech_o && self->books[i].kind.tech.year == year && strcmp(self->books[i].kind.tech.field, field) == 0)
             indexes[(*n)++] = i;
     }
     return indexes;

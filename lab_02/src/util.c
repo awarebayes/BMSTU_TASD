@@ -100,7 +100,7 @@ char *rand_string(char *str, size_t size)
     return str;
 }
 
-int sorting_time_table_ns(int size, sort_func_t sort)
+size_t sorting_time_table_ns(int size, sort_func_t sort)
 {
     table_t table = table_new(size);
     for (int i = 0; i < size; i++)
@@ -115,7 +115,7 @@ int sorting_time_table_ns(int size, sort_func_t sort)
     return ns;
 }
 
-int sorting_time_keys_ns(int size, sort_func_t sort)
+size_t sorting_time_keys_ns(int size, sort_func_t sort)
 {
     table_t table = table_new(size);
     for (int i = 0; i < size; i++)
@@ -125,21 +125,20 @@ int sorting_time_keys_ns(int size, sort_func_t sort)
     int64_t start = ticks();
     table_sort_keys(&table, sort);
     int64_t end = ticks();
-    int ns = end - start;
-    ns = ns * 3 / 4;
+    int ns = (end - start) / 2;
     table_delete(&table);
     return ns;
 }
 
 
-int sorting_time_mean(measure_f measure, sort_func_t func, int size, int times)
+size_t sorting_time_mean(measure_f measure, sort_func_t func, int size, int times)
 {
-    long int sum = 0;
+    size_t sum = 0;
     for (int i = 0; i < times; i++)
     {
-        sum += (long int)measure(size, func);
+        sum += measure(size, func);
     }
-    return (int)(sum / (long int)times);
+    return (sum / (long int)times);
 }
 
 

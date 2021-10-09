@@ -91,7 +91,12 @@ book_t book_read(FILE *fin, FILE *fout, int *ec)
 
 char *book_show(char *buf, book_t *book)
 {
-    sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s", book->pages, book->type, book->title, book->lastname, book->publisher);
+    if (book->type == tech_o)
+        sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s, %-5d, %-6d, %-20s", book->pages, book->type, book->title, book->lastname, book->publisher, book->kind.tech.language, book->kind.tech.year, book->kind.tech.field);
+    else if (book->type == fiction_o)
+        sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s, %-5d", book->pages, book->type, book->title, book->lastname, book->publisher, book->kind.fiction.genre);
+    else if (book->type == kid_o)
+        sprintf(buf, "%-5d, %-4d, %-40s, %-30s, %-20s, %-5d", book->pages, book->type, book->title, book->lastname, book->publisher, book->kind.kid.genre);
     return buf;
 }
 
@@ -187,23 +192,30 @@ cmp_func_t book_cmp_f(int type)
 book_key_t book_get_key(book_t *self, int type)
 {
     void *key_ptr = NULL;
+    size_t size = 0;
     switch (type)
     {
         case key_lastname:
             key_ptr = self->lastname;
+            size = sizeof(char) * ( strlen(self->lastname) + 1);
             break;
         case key_title:
             key_ptr = self->title;
+            size = sizeof(char) * (strlen(self->title) + 1);
+
             break;
         case key_publisher:
             key_ptr = self->publisher;
+            size = sizeof(char) * (strlen(self->publisher) + 1);
             break;
         case key_pages:
             key_ptr = &self->pages;
+            size = sizeof(int);
             break;
         case key_type:
             key_ptr = &self->type;
+            size = sizeof(int);
             break;
     }
-    return key_new(type, key_ptr, 0);
+    return key_new(type, key_ptr, size, 0);
 }
