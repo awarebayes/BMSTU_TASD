@@ -3,6 +3,8 @@
 #include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #define EXIT_CHOICE 123
 #define TIMES 50
 
@@ -41,26 +43,29 @@ book_key_t get_key()
 {
     int type = choose_key_type();
     int base_type = get_base_type(type);
-    void *ptr;
+    void *ptr = NULL;
     int ec = ok;
+    size_t size = 0;
     if (base_type == key_int)
     {
         int *a = malloc(sizeof(int));
         read_int(stdout, "Your key (int): ", a, stdin, &ec);
         ptr = a;
+        size = sizeof(int);
     }
     if (base_type == key_string)
     {
         char *buf = malloc(sizeof(char) * 128);
         read_str(stdout, "Your key (str): ", buf, stdin, &ec);
         ptr = buf;
+        size = sizeof(char) * (strlen(buf) + 1);
     }
     if (ec)
     {
         free(ptr);
         return get_key();
     }
-    return key_dummy(type, ptr);
+    return key_new(type, ptr, size, 0);
 }
 
 sort_func_t choose_sort()

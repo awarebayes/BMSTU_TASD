@@ -11,7 +11,7 @@ book_key_t key_new(int type, void* key, size_t key_size, int pos_actual)
     self.base_type = get_base_type(type);
     self.pos_actual = pos_actual;
     self.key = malloc(key_size);
-    memcpy(&self.key, key, key_size);
+    memcpy(self.key, key, key_size);
     return self;
 }
 

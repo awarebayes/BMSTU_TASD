@@ -10,6 +10,8 @@
 
 int str_cmp(const void *a, const void *b)
 {
+    if (a == b)
+        return 0;
     char *s1 = (char*)a;
     char *s2 = (char*)b;
     return strcmp(s1, s2);
@@ -125,7 +127,7 @@ size_t sorting_time_keys_ns(int size, sort_func_t sort)
     int64_t start = ticks();
     table_sort_keys(&table, sort);
     int64_t end = ticks();
-    int ns = (end - start) / 2;
+    int ns = (end - start);
     table_delete(&table);
     return ns;
 }
