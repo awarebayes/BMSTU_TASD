@@ -37,7 +37,7 @@ int main()
     sparse_t sres = sparse_vector_product(&smatrix, &svector);
     matrix_t res = matrix_vector_product(&matrix, &vector);
 
-    sparse_print(&sres);
+    // sparse_print(&sres);
     sparse_print_pretty(&sres);
     matrix_print(&res);
     matrix_delete(&res);

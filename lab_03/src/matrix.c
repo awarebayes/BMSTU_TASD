@@ -54,6 +54,7 @@ matrix_t matrix_vector_product(matrix_t *self, matrix_t *vector)
     {
         for (int j = 0; j < self->columns; j++)
         {
+            printf("usual : res[%d] += self[%d][%d] * vector[%d]\n", i, i, j, j);
             res.data[0][i] += self->data[i][j] * vector->data[0][j];
         }
     }

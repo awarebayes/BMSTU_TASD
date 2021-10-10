@@ -74,8 +74,8 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
     assert(vector->columns == 1);
     assert(vector->rows == self->columns);
 
-    int temp_res[self->columns];
-    for (int i = 0; i < self->columns; i++)
+    int temp_res[self->rows];
+    for (int i = 0; i < self->rows; i++)
         temp_res[i] = 0;
     
 
@@ -83,6 +83,7 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
     {
         int nz_start = cons_get(self->JA, j);
         int nz_end = cons_get(self->JA, j + 1);
+
         for (int mat_nz_idx = nz_start; mat_nz_idx < nz_end; mat_nz_idx++)
         {
             int i = vector_get(&self->IA, mat_nz_idx);
@@ -91,7 +92,7 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
                 int j_vector = vector_get(&vector->IA, vector_nz_idx);
                 if (i == j_vector)
                 {
-                    // printf("Multiplying mat[%d][%d] with vec[1][%d]\n", i, j, j_vector);
+                    printf("sparse: res[%d] += self[%d][%d] * vector[%d]\n", i, i, j, j_vector);
                     int mul = vector_get(&vector->A, vector_nz_idx) * vector_get(&self->A, mat_nz_idx);
                     temp_res[j] += mul;
                     break;
@@ -100,7 +101,7 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
         }
     }
 
-    matrix_t res_mat = matrix_from_array(temp_res, self->columns, 1);
+    matrix_t res_mat = matrix_from_array(temp_res, self->rows, 1);
     sparse_t res = sparse_from_matrix(&res_mat);
     matrix_delete(&res_mat);
     return res;
