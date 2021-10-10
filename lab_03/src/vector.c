@@ -10,6 +10,16 @@ vector_t vector_new(int capacity)
     return self;
 }
 
+vector_t vector_from_arr(int n, int *arr)
+{
+    vector_t self = vector_new(n);
+    for (int i = 0; i < n; i++) 
+        self.arr[i] = arr[i];
+    return self;
+}
+
+
+
 void vector_delete(vector_t *self)
 {
     if (self == NULL)

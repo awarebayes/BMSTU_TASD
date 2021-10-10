@@ -2,7 +2,6 @@
 #define __SPARSE_H__
 
 #include "matrix.h"
-#include "common.h"
 #include "cons.h"
 #include "vector.h"
 
@@ -16,7 +15,8 @@ typedef struct
     cons_t *JA;
 } sparse_t;
 
-sparse_t sparse_from_matrix(matrix_t *m);
+void sparse_delete(sparse_t *self);
+sparse_t sparse_from_file(FILE *fin, FILE *fout, int *ec);
 void sparse_print(sparse_t *self);
 void sparse_print_pretty(sparse_t *self);
 sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector);

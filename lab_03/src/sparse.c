@@ -1,7 +1,9 @@
-#include "sparse.h"
-#include "cons.h"
+#include "../inc/sparse.h"
+#include "../inc/cons.h"
+#include "../inc/util.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 sparse_t sparse_from_matrix(matrix_t *m)
 {
@@ -32,6 +34,46 @@ sparse_t sparse_from_matrix(matrix_t *m)
     }
     cons_add(self.JA, el_count);
     return self;
+}
+
+sparse_t sparse_from_file(FILE *fin, FILE *fout, int *ec)
+{
+    int n = 0, m = 0;
+    int nz = 0;
+    if (fout)
+        fprintf(fout, "Input n,m:\n");
+    if (fscanf(fin, "%d %d", &n, &m) != 2)
+        *ec = input_err;
+    if (fout)
+        fprintf(fout, "Input number nonzero:\n");
+    if (fscanf(fin, "%d", &nz) != 1)
+        *ec = input_err;
+    if (m <= 0 || n <= 0 || nz < 0)
+        *ec = input_err;
+    
+    int *A = read_arr(fout, "Input values(A):", nz, fin, ec);
+    int *IA = read_arr(fout, "Input indices (IA):", nz, fin, ec);
+    cons_t *JA = read_arr_cons(fout, "Input indices (JA):", fin);
+    sparse_t self = {0};
+    if (!ec)
+    {
+        self.rows = n;
+        self.columns = m;
+        self.n = nz;
+        self.A = vector_from_arr(nz, A);
+        self.IA = vector_from_arr(nz, IA);
+        self.JA = JA;
+    }
+    free(A);
+    free(IA);
+    return self;
+}
+
+void sparse_delete(sparse_t *self)
+{
+    vector_delete(&self->A);
+    vector_delete(&self->IA);
+    cons_delete(self->JA);
 }
 
 void sparse_print(sparse_t *self)
@@ -74,9 +116,7 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
     assert(vector->columns == 1);
     assert(vector->rows == self->columns);
 
-    int temp_res[self->rows];
-    for (int i = 0; i < self->rows; i++)
-        temp_res[i] = 0;
+    matrix_t temp_res = matrix_new(self->rows, 1);
     
 
     for (int j = 0; j < self->columns; j++)
@@ -90,19 +130,20 @@ sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector)
             for (int vector_nz_idx = 0; vector_nz_idx < vector->n; vector_nz_idx++)
             {
                 int j_vector = vector_get(&vector->IA, vector_nz_idx);
-                if (i == j_vector)
+                if (j == j_vector)
                 {
-                    printf("sparse: res[%d] += self[%d][%d] * vector[%d]\n", i, i, j, j_vector);
                     int mul = vector_get(&vector->A, vector_nz_idx) * vector_get(&self->A, mat_nz_idx);
-                    temp_res[j] += mul;
+                    #ifdef DEBUG
+                    printf("sparse: res[%d] += self[%d][%d] * vector[%d] = %d\n", i, i, j, j_vector, mul);
+                    #endif // DEBUG
+                    temp_res.data[0][i] += mul;
                     break;
                 }
             }
         }
     }
 
-    matrix_t res_mat = matrix_from_array(temp_res, self->rows, 1);
-    sparse_t res = sparse_from_matrix(&res_mat);
-    matrix_delete(&res_mat);
+    sparse_t res = sparse_from_matrix(&temp_res);
+    matrix_delete(&temp_res);
     return res;
 }
