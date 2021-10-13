@@ -5,12 +5,12 @@
 
 void cons_delete(cons_t *self)
 {
-    cons_t *next = self->next;
+    cons_t *prev = NULL;
     while (self != NULL)
     {
-        free(self);
-        next = self->next;
-        self = next;
+        prev = self;
+        self = self->next;
+        free(prev);
     }
 }
 
@@ -18,6 +18,7 @@ cons_t *cons_new(int value)
 {
     cons_t *self = (cons_t*)malloc(sizeof(cons_t));
     self->value = value;
+    self->next = NULL;
     return self;
 }
 
@@ -40,4 +41,15 @@ int cons_get(cons_t *self, int idx)
         n++;
     }
     return self->value;
+}
+
+size_t cons_size(cons_t *self)
+{
+  size_t res = 0;
+  if (self != NULL) {
+    res = sizeof(int *) + sizeof(int);
+    if (self->next != NULL)
+      res += cons_size(self->next);
+  }
+  return res;
 }

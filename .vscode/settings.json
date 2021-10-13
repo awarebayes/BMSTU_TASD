@@ -34,7 +34,8 @@
         "string_view": "c",
         "menu.h": "c",
         "matrix.h": "c",
-        "sparse.h": "c"
+        "sparse.h": "c",
+        "profile.h": "c"
     },
     "python.pythonPath": "/home/dev/anaconda3/bin/python",
     "cmake.sourceDirectory": "${workspaceFolder}/lab_02"

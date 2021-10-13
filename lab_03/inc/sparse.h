@@ -1,6 +1,7 @@
 #ifndef __SPARSE_H__
 #define __SPARSE_H__
 
+#include <stdio.h>
 #include "matrix.h"
 #include "cons.h"
 #include "vector.h"
@@ -20,5 +21,6 @@ sparse_t sparse_from_file(FILE *fin, FILE *fout, int *ec);
 void sparse_print(sparse_t *self);
 void sparse_print_pretty(sparse_t *self);
 sparse_t sparse_vector_product(sparse_t *self, sparse_t *vector);
+size_t sparse_size(sparse_t *self);
 
 #endif // !__SPARSE_H__

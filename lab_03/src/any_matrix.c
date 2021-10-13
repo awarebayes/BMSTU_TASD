@@ -12,7 +12,7 @@ void any_matrix_as(any_matrix_t *self, int type)
         sparse_delete(&my_sparse);
         self->type = any_matrix_dense;
     }
-    if (self->type == any_matrix_dense)
+    else if (self->type == any_matrix_dense)
     {
         matrix_t my_dense = self->kind.dense;
         self->kind.sparse = sparse_from_matrix(&my_dense);
@@ -21,10 +21,36 @@ void any_matrix_as(any_matrix_t *self, int type)
     }
 }
 
+void any_matrix_delete(any_matrix_t *self)
+{
+    if (self->type == any_matrix_dense)
+        matrix_delete(&self->kind.dense);
+    if (self->type == any_matrix_sparse)
+        sparse_delete(&self->kind.sparse);
+}
+
+int any_matrix_rows(any_matrix_t *self)
+{
+    if (self->type == any_matrix_dense)
+        return self->kind.dense.rows;
+    if (self->type == any_matrix_sparse)
+        return self->kind.sparse.rows;
+    return -1;
+}
+
+int any_matrix_columns(any_matrix_t *self)
+{
+    if (self->type == any_matrix_dense)
+        return self->kind.dense.columns;
+    if (self->type == any_matrix_sparse)
+        return self->kind.sparse.columns;
+    return -1;
+}
+
 void any_matrix_print(any_matrix_t *self)
 {
     if (self->type == any_matrix_dense)
-        matrix_print(&self->kind.dense);
+        matrix_print_as_sparse(&self->kind.dense);
     if (self->type == any_matrix_sparse)
         sparse_print_pretty(&self->kind.sparse);
 }
@@ -39,7 +65,7 @@ any_matrix_t any_matrix_from_file(int type, FILE *fin, FILE *fout, int *ec)
     return self;
 }
 
-any_matrix_t any_matrix_vector_product(any_matrix_t *matrix, any_matrix_t *vector, int type)
+any_matrix_t any_matrix_vector_product(int type, any_matrix_t *matrix, any_matrix_t *vector)
 {
     any_matrix_as(matrix, type);
     any_matrix_as(vector, type);

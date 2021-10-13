@@ -4,7 +4,7 @@
 #include <time.h>
 
 
-void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
+void read_str(FILE *fin, FILE *fout, char *hint_msg, char *target, int *ec)
 {
     if (fout)
         fprintf(fout, "%s", hint_msg);
@@ -23,7 +23,7 @@ void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec)
     }
 }
 
-void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
+void read_int(FILE *fin, FILE *fout, char *hint_msg, int *target, int *ec)
 {
     char buffer[BUFFER_SIZE];
     char temp[BUFFER_SIZE];
@@ -39,10 +39,10 @@ void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec)
         *ec = input_err;
 }
 
-int *read_arr(FILE *fout, char *hint_msg, int n, FILE *fin, int *ec)
+int *read_arr(FILE *fin, FILE *fout, char *hint_msg, int n, int *ec)
 {
     int *temp_buf = (int*)malloc(n * sizeof(int));
-    int n_scanned;
+    int n_scanned = 0;
     if (fout)
         fprintf(fout, "%s", hint_msg);
     for (int i = 0; i < n; i++)
@@ -55,7 +55,7 @@ int *read_arr(FILE *fout, char *hint_msg, int n, FILE *fin, int *ec)
     return temp_buf;
 }
 
-cons_t *read_arr_cons(FILE *fout, char *hint_msg, FILE *fin)
+cons_t *read_arr_cons(FILE *fin, FILE *fout, char *hint_msg)
 {
     cons_t *res = NULL;
     int temp;

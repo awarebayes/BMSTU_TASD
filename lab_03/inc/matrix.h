@@ -17,5 +17,7 @@ void matrix_delete(matrix_t *self);
 int matrix_n_nonzero(matrix_t *self);
 matrix_t matrix_vector_product(matrix_t *self, matrix_t *vector);
 void matrix_print(matrix_t *self);
+void matrix_print_as_sparse(matrix_t *self);
+size_t matrix_size(matrix_t *self);
 
 #endif // !__MATRIX_H__
