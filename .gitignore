@@ -5,6 +5,7 @@
 *.gcda
 *.gcno
 *.gch
+*.zip
 /**/temp.py
 bin/
 .mypy_cache/

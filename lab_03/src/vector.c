@@ -13,12 +13,11 @@ vector_t vector_new(int capacity)
 vector_t vector_from_arr(int n, int *arr)
 {
     vector_t self = vector_new(n);
+    self.size = n;
     for (int i = 0; i < n; i++) 
         self.arr[i] = arr[i];
     return self;
 }
-
-
 
 void vector_delete(vector_t *self)
 {
@@ -30,6 +29,7 @@ void vector_delete(vector_t *self)
 vector_t vector_realloc(vector_t *self)
 {
     vector_t new_vec = vector_new(self->capacity * 2);
+    new_vec.size = self->size;
     for (int i = 0; i < self->capacity; i++)
         new_vec.arr[i] = self->arr[i];
     vector_delete(self);
@@ -44,7 +44,12 @@ void vector_add(vector_t *self, int el)
     self->arr[self->size++] = el;
 }
 
-int vector_get(vector_t *self, int idx)
+inline int vector_get(vector_t *self, int idx)
 {
     return self->arr[idx];
+}
+
+size_t vector_size(vector_t *self)
+{
+  return sizeof(int) * self->capacity + 2 * sizeof(int);
 }

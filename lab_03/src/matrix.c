@@ -45,9 +45,9 @@ matrix_t matrix_from_file(FILE *fin, FILE *fout, int *ec)
         *ec = input_err;
     if (m <= 0 || n <= 0)
         *ec = input_err;
-    int *arr = read_arr(fout, "Input values:", m*n, fin, ec);
+    int *arr = read_arr(fin, fout, "Input values:", m*n, ec);
     matrix_t self = {0};
-    if (!ec)
+    if (!*ec)
         self = matrix_from_array(arr, n, m);
     free(arr);
     return self;
@@ -111,4 +111,30 @@ void matrix_print(matrix_t *self)
         }
         printf("\n");
     }
+}
+
+void matrix_print_as_sparse(matrix_t *self)
+{
+    printf("Matrix %dx%d\n", self->rows, self->columns);
+    printf("row\tcol\tval\n");
+    int printed = 0;
+    for (int j = 0; j < self->columns; j++)
+    {
+        for (int i = 0; i < self->rows; i++)
+        {
+            if (self->data[i][j] != 0)
+            {
+                printf("A[%d]\t[%d]\t = %d\n", j, i, self->data[i][j]);
+                printed = 1;
+            }
+        }
+        printf("\n");
+    }
+    if (!printed)
+        printf("Matrix is empty\n");
+}
+
+size_t matrix_size(matrix_t *self)
+{
+  return sizeof(*self) + sizeof(int) * self->rows * self->columns + self-> columns + sizeof(int*) * self->rows;
 }
