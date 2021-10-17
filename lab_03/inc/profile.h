@@ -18,5 +18,6 @@ typedef struct
 
 time_measurement_t measure_time(int n_rows, int n_cols, int percentage);
 mem_measurement_t measure_memory(int n_rows, int n_cols, int percentage);
+int *gen_arr(int size, int percentage);
 
 #endif // !__PROFILE_H__

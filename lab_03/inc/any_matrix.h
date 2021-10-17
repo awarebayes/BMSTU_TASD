@@ -32,5 +32,6 @@ void any_matrix_delete(any_matrix_t *self);
 void any_matrix_print(any_matrix_t *self);
 int any_matrix_rows(any_matrix_t *self);
 int any_matrix_columns(any_matrix_t *self);
+any_matrix_t any_matrix_random(int type, int rows, int cols, int percentage);
 
 #endif // !__ANY_MATRIX__

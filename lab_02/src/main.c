@@ -14,11 +14,19 @@
  *  литературы по указанной отрасли указанного года. 
  */
 
+struct test
+{
+	int a;
+	char b;
+	char c;
+};
+
 int main()
 {
     int ec = ok;
     table_t table = {0};
     read_table_given_path(&table, "../tests/input.txt", &ec);
+	printf("%ld", sizeof(struct test));
     if (!ec)
         act_on_table(&table);
     return ec;

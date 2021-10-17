@@ -32,7 +32,7 @@ int get_choice(int argc, char **argv) {
 any_matrix_t menu_read_matrix(int *ec) {
 	any_matrix_t zero = {0};
 	int mat_kind = -1;
-	int is_stdin = -1;
+	int read_from = -1;
 
 	int input_ec = 0;
 	while (mat_kind != 0 && mat_kind != 1) {
@@ -42,17 +42,23 @@ any_matrix_t menu_read_matrix(int *ec) {
 		read_int(stdin, stdout, "Choice: ", &mat_kind, &input_ec);
 	}
 
-	while (is_stdin != 0 && is_stdin != 1) {
+	while (read_from != 0 && read_from != 1 && read_from != 2) {
 		input_ec = 0;
 		printf("Read from file or stdin?\n");
-		printf("0 - file, 1 - stdin\n");
-		read_int(stdin, stdout, "Choice: ", &is_stdin, &input_ec);
+		printf("0 - file, 1 - stdin, 2 - random\n");
+		read_int(stdin, stdout, "Choice: ", &read_from, &input_ec);
 	}
 	if (*ec)
 		return zero;
 
-	if (is_stdin)
+	if (read_from == 1)
 		return any_matrix_from_file(mat_kind, stdin, stdout, ec);
+	else if (read_from == 2)
+	{
+		int m = 0, n = 0, p = 0;
+		read_three_ints(stdin, stdout, "Input n, m, sparcity: ", &n, &m, &p, ec);
+		return any_matrix_random(mat_kind, n, m, p);
+	}
 
 	char path[BUFFER_SIZE];
 	read_str(stdin, stdout, "File path: ", path, ec);
@@ -99,7 +105,7 @@ void menu_matrix_vector_product(any_matrix_t *matrix, any_matrix_t *vector) {
 }
 
 void menu_profile() {
-	int n_rows = 10000;
+	int n_rows = 1000;
 	int n_cols = 1000;
 	printf("Matrix vector product time in ms\n");
 	printf("Matrix is %dx%d, vector is 1x%d\n", n_rows, n_cols, n_rows);
@@ -108,6 +114,12 @@ void menu_profile() {
 		time_measurement_t m = measure_time(n_rows, n_cols, i);
 		printf("%d\t%ld\t%ld\n", i, m.dense, m.sparse);
 	}
+}
+
+
+void menu_profile_memory() {
+	int n_rows = 10000;
+	int n_cols = 1000;
 
 	printf("Matrix size in bytes\n");
 	printf("Matrix is %dx%d\n", n_rows, n_cols);
@@ -154,6 +166,7 @@ void main_loop() {
 			"Read vector",
 			"Muiltiply matrix by vector",
 			"Profile",
+			"Profile memory",
 			"Print debug info"
 	};
 
@@ -172,6 +185,11 @@ void main_loop() {
 				break;
 			case 1:
 				menu_read_matrix_handle_errors(&vector, &vector_read);
+				if (any_matrix_columns(&vector) != 1)
+				{
+					printf("Your vector is a matrix!");
+					vector_read = 0;
+				}
 				break;
 			case 2:
 				if (!matrix_read || !vector_read)
@@ -183,6 +201,9 @@ void main_loop() {
 				menu_profile();
 				break;
 			case 4:
+				menu_profile_memory();
+				break;
+			case 5:
 				menu_print_debug_info(&matrix, &vector, matrix_read, vector_read);
 				break;
 			default:

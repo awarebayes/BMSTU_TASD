@@ -37,8 +37,14 @@ sparse_t sparse_from_matrix(matrix_t *m)
 
 sparse_t sparse_from_file(FILE *fin, FILE *fout, int *ec)
 {
+    sparse_t self = {0};
     int n = 0, m = 0;
     int nz = 0;
+
+    int *A = NULL;
+    int *IA = NULL;
+    cons_t *JA = NULL;
+
     if (fout)
         fprintf(fout, "Input n,m:\n");
     if (fscanf(fin, "%d %d", &n, &m) != 2)
@@ -50,10 +56,12 @@ sparse_t sparse_from_file(FILE *fin, FILE *fout, int *ec)
     if (m <= 0 || n <= 0 || nz < 0 || nz > m * n)
         *ec = input_err;
     
-    int *A = read_arr(fin, fout, "Input values(A): ", nz, ec);
-    int *IA = read_arr(fin, fout, "Input indices (IA): ", nz, ec);
-    cons_t *JA = read_arr_cons(fin, fout, "Input indices (JA): ");
-    sparse_t self = {0};
+    if (!*ec)
+        A = read_arr(fin, fout, "Input values(A): ", nz, ec);
+    if (!*ec)
+        IA = read_arr(fin, fout, "Input indices (IA): ", nz, ec);
+    if (!*ec)
+		JA = read_arr_cons(fin, fout, "Input indices (JA): ");
     if (!*ec)
     {
         self.rows = n;
@@ -77,6 +85,7 @@ void sparse_delete(sparse_t *self)
 
 void sparse_print(sparse_t *self)
 {
+	return;
     printf("Sparse matrix %dx%d of %d elements\n", self->rows, self->columns, self->n);
     if (self->n == 0)
         return;

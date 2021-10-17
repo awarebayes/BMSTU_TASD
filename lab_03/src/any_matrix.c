@@ -1,5 +1,5 @@
 #include "../inc/any_matrix.h"
-
+#include "../inc/profile.h"
 
 void any_matrix_as(any_matrix_t *self, int type)
 {
@@ -57,12 +57,20 @@ void any_matrix_print(any_matrix_t *self)
 
 any_matrix_t any_matrix_from_file(int type, FILE *fin, FILE *fout, int *ec)
 {
-    any_matrix_t self = { .type = type };
+    any_matrix_t self = { 0 };
     if (type == any_matrix_dense)
+    {
         self.kind.dense = matrix_from_file(fin, fout, ec);
+		self.type = any_matrix_dense;
+	}
     if (type == any_matrix_sparse)
-        self.kind.sparse = sparse_from_file(fin, fout, ec);
-    return self;
+    {
+	    self.kind.dense = matrix_from_coord_file(fin, fout, ec);
+	    self.type = any_matrix_dense;
+		if (!*ec)
+			any_matrix_as(&self, any_matrix_sparse);
+    }
+	return self;
 }
 
 any_matrix_t any_matrix_vector_product(int type, any_matrix_t *matrix, any_matrix_t *vector)
@@ -76,4 +84,13 @@ any_matrix_t any_matrix_vector_product(int type, any_matrix_t *matrix, any_matri
     if (type == any_matrix_sparse)
         res.kind.sparse = sparse_vector_product(&matrix->kind.sparse, &vector->kind.sparse);
     return res;
+}
+
+any_matrix_t any_matrix_random(int type, int rows, int cols, int percentage)
+{
+	any_matrix_t self = {.type = any_matrix_dense};
+	int *vec_arr = gen_arr(cols * rows, percentage);
+	self.kind.dense = matrix_from_array(vec_arr, rows, cols);
+	any_matrix_as(&self, type);
+	return self;
 }

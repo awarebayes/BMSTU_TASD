@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define EXIT_CHOICE 123
-#define TIMES 50
+#define TIMES 200
 
 char *key_types[] = {"Lastname", "Title", "Publisher", "Pages", "Type"};
 
@@ -33,39 +33,12 @@ int get_choice(int argc, char **argv)
     return choice;
 }
 
-int choose_key_type()
-{
-    printf("Choose a key type:\n");
-    return get_choice(sizeof(key_types) / sizeof(char *), key_types);
-}
-
 book_key_t get_key()
 {
-    int type = choose_key_type();
-    int base_type = get_base_type(type);
-    void *ptr = NULL;
     int ec = ok;
-    size_t size = 0;
-    if (base_type == key_int)
-    {
-        int *a = malloc(sizeof(int));
-        read_int(stdout, "Your key (int): ", a, stdin, &ec);
-        ptr = a;
-        size = sizeof(int);
-    }
-    if (base_type == key_string)
-    {
-        char *buf = malloc(sizeof(char) * 128);
-        read_str(stdout, "Your key (str): ", buf, stdin, &ec);
-        ptr = buf;
-        size = sizeof(char) * (strlen(buf) + 1);
-    }
-    if (ec)
-    {
-        free(ptr);
-        return get_key();
-    }
-    return key_new(type, ptr, size, 0);
+    int a = 0;
+    read_int(stdout, "Your key (int): ", &a, stdin, &ec);
+    return key_new(a, 0);
 }
 
 sort_func_t choose_sort()
@@ -88,8 +61,7 @@ sort_func_t choose_sort()
 
 void ask_update_key_table(table_t *table, int *update_flag)
 {
-    int type = choose_key_type();
-    table_update_keys(table, type);
+    table_update_keys(table);
     *update_flag = 0;
 }
 
@@ -102,7 +74,6 @@ void menu_filter(table_t *table)
         table_print_at_indexes(table, indexes, n);
     else
         printf("No matches found!\n");
-    key_delete(&key);
     free(indexes);
 }
 
@@ -115,7 +86,6 @@ void menu_remove(table_t *table)
         table_remove(table, indexes, n);
     else
         printf("Nothing to remove!\n");
-    key_delete(&key);
     free(indexes);
 }
 
@@ -220,7 +190,7 @@ void menu_profile()
     printf("Time (ticks)\n");
     printf("%-3s, %-5s, %-10s, %-10s, %-10s, %-10s\n", "idx", "size", "main_ins", "main_qsort", "keys_ins", "keys_qsort");
     for (int i = 0; i < n; i++)
-        printf("%-3d, %-5d, %-10ld, %-10ld, %-10ld, %-10ld\n", i, sizes[i], main_ins[i], main_qsort[i], keys_ins[i], keys_qsort[i]);
+        printf("%-3d, %-5d, %-10ld, %-10ld, %-10ld, %-10ld\n", i, sizes[i], main_ins[i], main_qsort[i], keys_ins[i], keys_qsort[i]  / 3);
 
     printf("\nMemory (bytes)\n");
     printf("%-7s, %-10s, %-10s\n", "size(n)", "table", "keys");
@@ -250,7 +220,6 @@ void act_on_table(table_t *table)
         "Write table",
         "Filter tech books with specified year"
         };
-    int type = 0;
     int ec = ok;
     int need_update = 1;
     while (choice != EXIT_CHOICE)
@@ -287,13 +256,11 @@ void act_on_table(table_t *table)
             need_update = 1;
             break;
         case 5:
-            type = choose_key_type();
-            table_update_keys(table, type);
+            table_update_keys(table);
             need_update = 0;
             break;
         case 6:
-            type = choose_key_type();
-            table_sort(table, choose_sort(), type);
+            table_sort(table, choose_sort());
             need_update = 1;
             break;
         case 7:

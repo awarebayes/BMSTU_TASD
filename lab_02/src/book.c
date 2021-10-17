@@ -135,27 +135,6 @@ book_t book_random()
     return book;
 }
 
-int book_cmp_lastname(const void *a, const void *b)
-{
-    char *l1 = ((book_t*)a)->lastname;
-    char *l2 = ((book_t*)b)->lastname;
-    return strcmp(l1, l2);
-}
-
-int book_cmp_publisher(const void *a, const void *b)
-{
-    char *p1 = ((book_t*)a)->publisher;
-    char *p2 = ((book_t*)b)->publisher;
-    return strcmp(p1, p2);
-}
-
-int book_cmp_title(const void *a, const void *b)
-{
-    char *t1 = ((book_t*)a)->title;
-    char *t2 = ((book_t*)b)->title;
-    return strcmp(t1, t2);
-}
-
 int book_cmp_pages(const void *a, const void *b)
 {
     int p1 = ((book_t*)a)->pages;
@@ -163,59 +142,12 @@ int book_cmp_pages(const void *a, const void *b)
     return p1-p2;
 }
 
-int book_cmp_type(const void *a, const void *b)
+cmp_func_t book_cmp_f()
 {
-    int t1 = ((book_t*)a)->type;
-    int t2 = ((book_t*)b)->type;
-    return t1-t2;
+    return book_cmp_pages;
 }
 
-cmp_func_t book_cmp_f(int type)
+void book_get_key(book_t *self, book_key_t *target)
 {
-    switch (type)
-    {
-    case key_lastname:
-        return book_cmp_lastname;
-    case key_title:
-        return book_cmp_publisher;
-    case key_publisher:
-        return book_cmp_publisher;
-    case key_pages:
-        return book_cmp_pages;
-    case key_type:
-        return book_cmp_type;
-   default:
-        return NULL;
-    }
-}
-
-book_key_t book_get_key(book_t *self, int type)
-{
-    void *key_ptr = NULL;
-    size_t size = 0;
-    switch (type)
-    {
-        case key_lastname:
-            key_ptr = self->lastname;
-            size = sizeof(char) * ( strlen(self->lastname) + 1);
-            break;
-        case key_title:
-            key_ptr = self->title;
-            size = sizeof(char) * (strlen(self->title) + 1);
-
-            break;
-        case key_publisher:
-            key_ptr = self->publisher;
-            size = sizeof(char) * (strlen(self->publisher) + 1);
-            break;
-        case key_pages:
-            key_ptr = &self->pages;
-            size = sizeof(int);
-            break;
-        case key_type:
-            key_ptr = &self->type;
-            size = sizeof(int);
-            break;
-    }
-    return key_new(type, key_ptr, size, 0);
+    target->key = self->pages;
 }

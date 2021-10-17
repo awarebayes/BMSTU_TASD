@@ -17,8 +17,6 @@ table_t table_new(int capacity)
 void table_delete(table_t *self)
 {
     free(self->books);
-    for (int i = 0; i < self->size; i++)
-        key_delete(&self->keys[i]);
     free(self->keys);
 }
 
@@ -152,11 +150,12 @@ size_t table_keys_size(table_t *self)
 
 
 
-void table_update_keys(table_t *self, int type)
+void table_update_keys(table_t *self)
 {
+    self->keys = malloc(self->size * sizeof(book_key_t));
     for(int i = 0; i < self->size; i++)
     {
-        self->keys[i] = book_get_key(&self->books[i], type);
+        self->keys[i].key = self->books[i].pages;
         self->keys[i].pos_actual = i;
     }
 }
@@ -166,19 +165,18 @@ void table_sort_keys(table_t *self, sort_func_t sort)
     sort(self->keys, self->size, sizeof(book_key_t), key_cmp);
 }
 
-void table_sort(table_t *self, sort_func_t sort, int type)
+void table_sort(table_t *self, sort_func_t sort)
 {
-    sort(self->books, self->size, sizeof(book_t), book_cmp_f(type));
+    sort(self->books, self->size, sizeof(book_t), book_cmp_f());
 }
 
 int *table_filter(table_t *self, book_key_t *key, int *n)
 {
     *n = 0;
-    int key_type = key->type;
     int *indexes = malloc(self->size * sizeof(int));
     for (int i = 0; i < self->size; i++)
     {
-        book_key_t book_key = book_get_key(&self->books[i], key_type);
+        book_key_t book_key = {.key = self->books[i].pages};
         if (key_cmp(&book_key, key) == 0)
             indexes[(*n)++] = i;
     }

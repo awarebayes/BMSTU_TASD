@@ -29,9 +29,9 @@ void memswap(void *v1, void *v2, size_t size)
     void *temp = malloc(size);
     if (temp != NULL)
     {
-        memcpy(temp, v1, size);
-        memcpy(v1, v2, size);
-        memcpy(v2, temp, size);
+        memmove(temp, v1, size);
+        memmove(v1, v2, size);
+        memmove(v2, temp, size);
         free(temp);
     }
 }
@@ -109,7 +109,7 @@ size_t sorting_time_table_ns(int size, sort_func_t sort)
         table_insert(&table, book_random());
 
     int64_t start = ticks();
-    table_sort(&table, sort, SORTING_TYPE);
+    table_sort(&table, sort);
     int64_t end = ticks();
     //int ns = (end - start) * 1000000 / CLOCKS_PER_SEC;
     int ns = end - start;
@@ -122,7 +122,7 @@ size_t sorting_time_keys_ns(int size, sort_func_t sort)
     table_t table = table_new(size);
     for (int i = 0; i < size; i++)
         table_insert(&table, book_random());
-    table_update_keys(&table, SORTING_TYPE);
+    table_update_keys(&table);
 
     int64_t start = ticks();
     table_sort_keys(&table, sort);

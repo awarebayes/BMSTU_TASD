@@ -19,8 +19,7 @@ enum err_enum
 void read_str(FILE *fin, FILE *fout, char *hint_msg, char *target, int *ec);
 void read_int(FILE *fin, FILE *fout, char *hint_msg, int *target, int *ec);
 int *read_arr(FILE *fin, FILE *fout, char *hint_msg, int n, int *ec);
+void read_three_ints(FILE *fin, FILE *fout, char *hint_msg, int *a, int *b, int *c, int *ec);
 cons_t *read_arr_cons(FILE *fin, FILE *fout, char *hint_msg);
-char *rand_string(char *str, size_t size);
-int64_t ticks(void);
 
 #endif // !__UTIL_H__

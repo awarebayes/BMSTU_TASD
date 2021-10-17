@@ -55,6 +55,22 @@ int *read_arr(FILE *fin, FILE *fout, char *hint_msg, int n, int *ec)
     return temp_buf;
 }
 
+void read_three_ints(FILE *fin, FILE *fout, char *hint_msg, int *a, int *b, int *c, int *ec)
+{
+	char buffer[BUFFER_SIZE];
+	char temp[BUFFER_SIZE];
+	int tempint;
+	if (fout)
+		fprintf(fout, "%s", hint_msg);
+	fgets(buffer, BUFFER_SIZE, fin);
+	if (sscanf(buffer, "%d %d %d", a , b, c) != 3)
+		*ec = input_err;
+	if (sscanf(buffer, "%d %d %d %s", &tempint, &tempint, &tempint, temp) == 4)
+		*ec = input_err;
+	if (*a < 0 || * b < 0)
+		*ec = input_err;
+}
+
 cons_t *read_arr_cons(FILE *fin, FILE *fout, char *hint_msg)
 {
     cons_t *res = NULL;

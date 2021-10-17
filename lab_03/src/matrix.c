@@ -38,6 +38,7 @@ matrix_t matrix_from_sparse(sparse_t *sparse)
 
 matrix_t matrix_from_file(FILE *fin, FILE *fout, int *ec)
 {
+    matrix_t self = {0};
     int n = 0, m = 0;
     if (fout)
         fprintf(fout, "Input n,m:\n");
@@ -45,17 +46,45 @@ matrix_t matrix_from_file(FILE *fin, FILE *fout, int *ec)
         *ec = input_err;
     if (m <= 0 || n <= 0)
         *ec = input_err;
-    int *arr = read_arr(fin, fout, "Input values:", m*n, ec);
-    matrix_t self = {0};
     if (!*ec)
-        self = matrix_from_array(arr, n, m);
-    free(arr);
+    {
+        int *arr = read_arr(fin, fout, "Input values:", m*n, ec);
+        if (!*ec)
+            self = matrix_from_array(arr, n, m);
+        free(arr);
+    }
     return self;
+}
+
+
+matrix_t matrix_from_coord_file(FILE *fin, FILE *fout, int *ec)
+{
+	int n = 0, m = 0, nz = 0;
+	read_three_ints(fin, fout, "Input n, m, number nonzero: ", &n, &m, &nz, ec);
+	if (nz < 0)
+		*ec = input_err;
+	matrix_t self = matrix_new(n, m);
+	if (!*ec)
+	{
+		for (int k = 0; k < nz && !*ec; ++k)
+		{
+			int i, j, el;
+			read_three_ints(fin, fout, "Input i, j, element: ", &i, &j, &el, ec);
+			if (i < n && j < m)
+				self.data[i][j] = el;
+			else
+				*ec = input_err;
+		}
+	}
+	if (*ec)
+		matrix_delete(&self);
+	return self;
 }
 
 void matrix_delete(matrix_t *self)
 {
-    free(self->data);
+	free(self->data);
+	self->data = NULL;
 }
 
 int matrix_n_nonzero(matrix_t *self)
