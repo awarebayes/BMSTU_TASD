@@ -103,7 +103,7 @@ void menu_profile() {
 	int n_cols = 1000;
 	printf("Matrix vector product time in ms\n");
 	printf("Matrix is %dx%d, vector is 1x%d\n", n_rows, n_cols, n_rows);
-	printf("full\tdense\tsparse\t\n");
+	printf("%%\tdense\tsparse\t\n");
 	for (int i = 1; i < 100; i += 5) {
 		time_measurement_t m = measure_time(n_rows, n_cols, i);
 		printf("%d\t%ld\t%ld\n", i, m.dense, m.sparse);
@@ -111,10 +111,39 @@ void menu_profile() {
 
 	printf("Matrix size in bytes\n");
 	printf("Matrix is %dx%d\n", n_rows, n_cols);
-	printf("full\tdense\tsparse\t\n");
+	printf("full%%\tdense\tsparse\t\n");
 	for (int i = 1; i < 100; i += 5) {
 		mem_measurement_t m = measure_memory(n_rows, n_cols, i);
 		printf("%d\t%ld\t%ld\n", i, m.dense, m.sparse);
+	}
+}
+
+void menu_print_debug_info(any_matrix_t *matrix, any_matrix_t *vector, int matrix_read, int vector_read)
+{
+	if (vector_read)
+	{
+		printf("VECTOR:\n\n");
+		if (matrix->type == any_matrix_sparse)
+		{
+			sparse_print_pretty(&vector->kind.sparse);
+			sparse_print(&vector->kind.sparse);
+		} else {
+			matrix_print_as_sparse(&vector->kind.dense);
+			matrix_print(&vector->kind.dense);
+		}
+	}
+	printf("\n__________________________\n");
+	if (matrix_read)
+	{
+		printf("MATRIX:\n\n");
+		if (matrix->type == any_matrix_sparse)
+		{
+			sparse_print_pretty(&matrix->kind.sparse);
+			sparse_print(&matrix->kind.sparse);
+		} else {
+			matrix_print_as_sparse(&matrix->kind.dense);
+			matrix_print(&matrix->kind.dense);
+		}
 	}
 }
 
@@ -125,6 +154,7 @@ void main_loop() {
 			"Read vector",
 			"Muiltiply matrix by vector",
 			"Profile",
+			"Print debug info"
 	};
 
 	any_matrix_t vector = {0};
@@ -151,6 +181,9 @@ void main_loop() {
 				break;
 			case 3:
 				menu_profile();
+				break;
+			case 4:
+				menu_print_debug_info(&matrix, &vector, matrix_read, vector_read);
 				break;
 			default:
 				break;
