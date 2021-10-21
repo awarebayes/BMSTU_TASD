@@ -16,3 +16,4 @@ bin/
 /**/sus_tests/
 /**/build/
 /**/.idea
+/**/cmake-build*

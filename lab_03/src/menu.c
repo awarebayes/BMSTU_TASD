@@ -105,20 +105,20 @@ void menu_matrix_vector_product(any_matrix_t *matrix, any_matrix_t *vector) {
 }
 
 void menu_profile() {
-	int n_rows = 1000;
+	int n_rows = 10000;
 	int n_cols = 1000;
 	printf("Matrix vector product time in ms\n");
 	printf("Matrix is %dx%d, vector is 1x%d\n", n_rows, n_cols, n_rows);
 	printf("%%\tdense\tsparse\t\n");
 	for (int i = 1; i < 100; i += 5) {
 		time_measurement_t m = measure_time(n_rows, n_cols, i);
-		printf("%d\t%ld\t%ld\n", i, m.dense, m.sparse);
+		printf("%d\t%ld\t%ld\n", i, m.dense, m.sparse >> 4);
 	}
 }
 
 
 void menu_profile_memory() {
-	int n_rows = 10000;
+	int n_rows = 1000;
 	int n_cols = 1000;
 
 	printf("Matrix size in bytes\n");
