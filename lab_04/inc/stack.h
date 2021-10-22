@@ -3,11 +3,15 @@
 
 #include <stdio.h>
 
+/*
+ * Это реализация стека с помощью массива
+ */
+
 typedef struct
 {
-	int *arr;
-	int *arr_end;
-	int *ps;
+	int *begin; // Начало массива
+	int *end; // Конец массива
+	int *ps; // Текущее положение
 } stack_t;
 
 stack_t stack_new(size_t capacity);
@@ -25,5 +29,9 @@ int stack_empty(stack_t *self);
 size_t stack_size(stack_t *self);
 
 size_t stack_memsize(stack_t *self);
+
+void stack_print(stack_t *self);
+
+size_t stack_memsize_theoretic(size_t size);
 
 #endif // !__VECTOR_H__

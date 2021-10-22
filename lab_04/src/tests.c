@@ -12,11 +12,11 @@ void check_stack()
 {
 	stack_t stack = stack_new(10);
 	assert(stack_size(&stack) == 10);
-	assert(stack.ps == stack.arr - 1);
+	assert(stack.ps == stack.begin - 1);
 
 	stack_push(&stack, 1);
 
-	assert(stack.ps == stack.arr);
+	assert(stack.ps == stack.begin);
 	assert(*stack.ps == 1);
 	assert(stack_pop(&stack) == 1);
 	assert(stack_empty(&stack));

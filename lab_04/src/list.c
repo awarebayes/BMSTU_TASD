@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.h"
+#include "memory.h"
 
+/*
+ * Это динамический связный список
+ * Тут он реализует стек.
+ */
 
 cons_t *cons_new(int value)
 {
@@ -15,9 +20,7 @@ cons_t *cons_new(int value)
 cons_t *cons_traverse(cons_t *self)
 {
 	while (self->next != NULL)
-	{
 		self = self->next;
-	}
 	return self;
 }
 
@@ -64,6 +67,10 @@ int list_pop(list_t *self)
 		return 0;
 
 	int val = self->last->value;
+
+	if (LOG_DELETED)
+		log_delete(self->last);
+
 	if (self->first == self->last)
 	{
 		free(self->last);
@@ -81,36 +88,42 @@ int list_pop(list_t *self)
 	return val;
 }
 
-int list_get(list_t *self, int idx)
-{
-	cons_t *current_node = self->first;
-	int n = 0;
-	while (n < idx)
-	{
-		current_node = current_node->next;
-		n++;
-		if (current_node == self->last)
-			break;
-	}
-	return current_node->value;
-}
-
-size_t cons_size(cons_t *self)
+size_t cons_memsize(cons_t *self)
 {
 	size_t res = 0;
 	if (self != NULL)
 	{
 		res = sizeof(int *) + sizeof(int);
 		if (self->next != NULL)
-			res += cons_size(self->next);
+			res += cons_memsize(self->next);
 	}
 	return res;
+}
+
+size_t list_memsize_theoretic(size_t size)
+{
+	return sizeof(list_t) + sizeof(cons_t) * size;
 }
 
 
 int list_empty(list_t *self)
 {
 	return self->first == NULL;
+}
 
+void list_print(list_t *self)
+{
+	cons_t *node = self->first;
+	if (self->first == NULL)
+	{
+		printf("List is empty\n");
+		return;
+	}
+	while (node != NULL)
+	{
+		printf("%d ", node->value);
+		node = node->next;
+	}
+	printf("\n");
 }
 

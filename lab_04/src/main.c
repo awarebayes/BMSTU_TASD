@@ -4,9 +4,13 @@
 
 #include <stdio.h>
 #include "tests.h"
+#include "memory.h"
+#include "menu.h"
 
-int main(int argc, char **argv)
+int main()
 {
-	check_all();
-	printf("Hello, world\n");
+	if (LOG_DELETED)
+		log_init();
+	//check_all();
+	main_loop();
 }
