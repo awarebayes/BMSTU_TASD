@@ -45,22 +45,18 @@ void check_list()
 	assert(list.first->value == 1);
 	assert(list.first == list.last);
 	assert(list.first->next == NULL);
-	assert(list.first->prev == NULL);
 
 	list_add(&list, 2);
 
 	assert(list.first->value == 1);
 	assert(list.first->next == list.last);
-	assert(list.last->prev == list.first);
 	assert(list.last->next == NULL);
-	assert(list.first->prev == NULL);
 
 	assert(list_pop(&list) == 2);
 
 	assert(list.first->value == 1);
 	assert(list.first == list.last);
 	assert(list.first->next == NULL);
-	assert(list.first->prev == NULL);
 
 	for (int i = 2; i < 10; i++)
 	{
@@ -71,7 +67,6 @@ void check_list()
 	for (int i = 9; i >= 2; i--)
 	{
 		assert(list.last->next == NULL);
-		assert(list.last->prev->value == i - 1);
 		assert(list.last->value == i);
 		assert(list_pop(&list) == i);
 	}

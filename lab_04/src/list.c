@@ -13,7 +13,6 @@ cons_t *cons_new(int value)
 	cons_t *self = (cons_t *) malloc(sizeof(cons_t));
 	self->value = value;
 	self->next = NULL;
-	self->prev = NULL;
 	return self;
 }
 
@@ -57,7 +56,6 @@ void list_add(list_t *self, int value)
 		cons_t *prev_last = self->last;
 		self->last = new_last;
 		prev_last->next = new_last;
-		new_last->prev = prev_last;
 	}
 }
 
@@ -79,9 +77,16 @@ int list_pop(list_t *self)
 	}
 	else
 	{
-		cons_t *prev_last = self->last->prev;
+		cons_t *current_node = self->first;
+		cons_t *prev = self->first;
+		while (current_node->next != NULL)
+		{
+			prev = current_node;
+			current_node = current_node->next;
+			free(prev);
+		}
 		free(self->last);
-		self->last = prev_last;
+		self->last = prev;
 		if (self->last != 0)
 			self->last->next = NULL;
 	}

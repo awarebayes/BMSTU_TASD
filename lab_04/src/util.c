@@ -96,6 +96,7 @@ int64_t ticks(void)
     return t;
 }
  */
+
 uint64_t ticks(void)
 {
 	unsigned long long tmp;

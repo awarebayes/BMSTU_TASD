@@ -11,6 +11,6 @@ int main()
 {
 	if (LOG_DELETED)
 		log_init();
-	//check_all();
+	check_all();
 	main_loop();
 }

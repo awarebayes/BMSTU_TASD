@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <memory.h>
 
 #define EXIT_CHOICE 123
 #define TIMES 50
@@ -130,7 +131,6 @@ void menu_memory_profile()
 	printf("Memory profile:\n");
 	size_t sizes[] = { 10, 100, 1000, 10000, 100000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
-	int64_t start, end;
 	printf("|%16s|%33s|%33s|\n", "size", "stack", "list");
 	for (int i = 0; i < n_sizes; i++)
 	{
@@ -138,7 +138,7 @@ void menu_memory_profile()
 
 		char *string = rand_string(size);
 		char *palindrome = rand_palindrome(size);
-		printf("|%16d|", size);
+		printf("|%16ld|", size);
 		printf("|%32ld|", stack_memsize_theoretic(size));
 		printf("|%32ld|\n", list_memsize_theoretic(size));
 
@@ -183,6 +183,8 @@ void main_loop()
 				read_int(stdin, stdout, "Input integer: ", &i, &ec);
 				if (!ec)
 					stack_push(&stack, i);
+				else
+					printf("There was an error in Your input:\n");
 				break;
 			case 1:
 				if (stack_empty(&stack))

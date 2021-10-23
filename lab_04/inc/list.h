@@ -15,7 +15,6 @@ struct cons_t
 {
 	int value;
 	struct cons_t *next;
-	struct cons_t *prev;
 };
 
 typedef struct

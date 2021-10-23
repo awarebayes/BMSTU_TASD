@@ -26,13 +26,12 @@ int int_cmp(const void *a, const void *b)
 
 void memswap(void *v1, void *v2, size_t size)
 {
-    void *temp = malloc(size);
-    if (temp != NULL)
-    {
-        memmove(temp, v1, size);
-        memmove(v1, v2, size);
-        memmove(v2, temp, size);
-        free(temp);
+    unsigned char tmp;
+    unsigned char *a = v1, *b = v2;
+    while(size--) {
+        tmp = *a;
+        *a++ = *b;
+        *b++ = tmp;
     }
 }
 
@@ -49,7 +48,8 @@ void insert_sort(void *base, size_t nitems, size_t size, int (*cmp)(const void*,
             if (cmp(el, max) > 0)
                 max = el;
         }
-        memswap(max, cbase + size * j, size);
+        if (max != cbase + size * j)
+            memswap(max, cbase + size * j, size);
     }
 }
 

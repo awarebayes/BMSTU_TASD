@@ -12,7 +12,7 @@ typedef size_t (*measure_f)(int size, sort_func_t sort);
 
 int str_cmp(const void *a, const void *b);
 int int_cmp(const void *a, const void *b);
-void memswap(void *m1, void *m2, size_t size);
+void memswap(void *v1, void *v2, size_t size);
 void insert_sort(void *base, size_t nmember, size_t size, cmp_func_t cmp);
 void read_str(FILE *fout, char *hint_msg, char *target, FILE *fin, int *ec);
 void read_int(FILE *fout, char *hint_msg, int *target, FILE *fin, int *ec);
