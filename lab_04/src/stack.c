@@ -69,7 +69,7 @@ void stack_print(stack_t *self)
 		return;
 	}
 	printf("Stack is: \n");
-	for (int *a = self->begin; a <= self->ps; a++)
+	for (int *a = self->ps; a >= self->begin; a--)
 		printf("%d ", *a);
 	printf("\n");
 }
