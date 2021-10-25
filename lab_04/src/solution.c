@@ -46,7 +46,7 @@ int is_palindrome_list(const char *string)
 	{
 		list_add(&stack, (int) string[i]);
 	}
-	if ((len % 2) == 1)
+	if (len % 2 == 1)
 		i += 1; // ignore middle char
 
 	for (; i < len && flag; i++)

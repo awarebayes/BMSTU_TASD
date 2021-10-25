@@ -19,8 +19,7 @@ struct cons_t
 
 typedef struct
 {
-	cons_t *first;
-	cons_t *last;
+	cons_t *top;
 } list_t;
 
 cons_t *cons_new(int value);

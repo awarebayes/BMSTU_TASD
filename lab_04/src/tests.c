@@ -38,36 +38,29 @@ void check_stack()
 void check_list()
 {
 	list_t list = list_new();
-	assert(list.first == list.last);
+	assert(list.top == NULL);
 
 	list_add(&list, 1);
 
-	assert(list.first->value == 1);
-	assert(list.first == list.last);
-	assert(list.first->next == NULL);
+	assert(list.top->value == 1);
+	assert(list.top->next == NULL);
 
 	list_add(&list, 2);
 
-	assert(list.first->value == 1);
-	assert(list.first->next == list.last);
-	assert(list.last->next == NULL);
+	assert(list.top->value == 2);
 
 	assert(list_pop(&list) == 2);
 
-	assert(list.first->value == 1);
-	assert(list.first == list.last);
-	assert(list.first->next == NULL);
+	assert(list.top->value == 1);
+	assert(list.top->next == NULL);
 
 	for (int i = 2; i < 10; i++)
 	{
 		list_add(&list, i);
-		assert(list.last->value == i);
 	}
 
 	for (int i = 9; i >= 2; i--)
 	{
-		assert(list.last->next == NULL);
-		assert(list.last->value == i);
 		assert(list_pop(&list) == i);
 	}
 	list_pop(&list);

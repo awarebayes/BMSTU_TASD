@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
+#include <time.h>
 
 #define EXIT_CHOICE 123
 #define TIMES 50
@@ -64,7 +65,7 @@ void solve_ask()
 void menu_speed_profile()
 {
 	printf("Speed profile:\n");
-	int sizes[] = { 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000 };
+	int sizes[] = { 10, 50, 100, 500, 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
 	uint64_t start, end;
 	printf("|%16s|%33s|%33s|\n", "", "random", "palindrome");
@@ -82,9 +83,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = ticks();
+			start = clock();
 			is_palindrome_stack(string);
-			end = ticks();
+			end = clock();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -92,9 +93,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = ticks();
+			start = clock();
 			is_palindrome_list(string);
-			end = ticks();
+			end = clock();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -103,9 +104,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = ticks();
+			start = clock();
 			is_palindrome_stack(palindrome);
-			end = ticks();
+			end = clock();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -113,9 +114,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = ticks();
+			start = clock();
 			is_palindrome_list(palindrome);
-			end = ticks();
+			end = clock();
 			mean += end - start;
 		}
 		printf("%16lu|\n", mean / TIMES);
@@ -214,7 +215,7 @@ void main_loop()
 				list_print(&list);
 				break;
 			case 7:
-				printf("List stack uses %ld bytes\n", sizeof(list) + cons_memsize(list.first));
+				printf("List stack uses %ld bytes\n", sizeof(list) + cons_memsize(list.top));
 				break;
 			case 8:
 				solve_ask();
