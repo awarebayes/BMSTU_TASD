@@ -64,13 +64,14 @@ void solve_ask()
 
 void menu_speed_profile()
 {
-	printf("Speed profile:\n");
+	printf("Speed profile (is_palindrome):\n");
 	int sizes[] = { 10, 50, 100, 500, 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
 	uint64_t start, end;
 	printf("|%16s|%33s|%33s|\n", "", "random", "palindrome");
 	printf("|%16s|%16s|%16s|%16s|%16s|\n", "size", "stack", "list", "stack", "list");
 	uint64_t mean = 0;
+	int64_t (*time_func)(void) = ticks;
 	for (int i = 0; i < n_sizes; i++)
 	{
 		int size = sizes[i];
@@ -83,9 +84,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = clock();
+			start = time_func();
 			is_palindrome_stack(string);
-			end = clock();
+			end = time_func();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -93,9 +94,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = clock();
+			start = time_func();
 			is_palindrome_list(string);
-			end = clock();
+			end = time_func();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -104,9 +105,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = clock();
+			start = time_func();
 			is_palindrome_stack(palindrome);
-			end = clock();
+			end = time_func();
 			mean += end - start;
 		}
 		printf("%16lu|", mean / TIMES);
@@ -114,9 +115,9 @@ void menu_speed_profile()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			start = clock();
+			start = time_func();
 			is_palindrome_list(palindrome);
-			end = clock();
+			end = time_func();
 			mean += end - start;
 		}
 		printf("%16lu|\n", mean / TIMES);
@@ -126,21 +127,86 @@ void menu_speed_profile()
 	}
 }
 
+void menu_speed_profile_pp()
+{
+	printf("Speed profile (push, pop):\n");
+	int sizes[] = { 10, 50, 100, 500, 1000, 5000, 10000 };
+	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
+	uint64_t start, end;
+	printf("|%16s|%33s|%33s|\n", "", "push", "pop");
+	printf("|%16s|%16s|%16s|%16s|%16s|\n", "size", "stack", "list", "stack", "list");
+	uint64_t mean = 0;
+	int64_t (*time_func)(void) = ticks;
+	stack_t stack = stack_new(1);
+	list_t list = list_new();
+	for (int i = 0; i < n_sizes; i++)
+	{
+		int size = sizes[i];
+
+		printf("|%16d|", size);
+
+		// string
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			start = time_func();
+			for (int k = 0; k < sizes[i]; k++)
+				stack_push(&stack, j);
+			end = time_func();
+			mean += end - start;
+		}
+		printf("%16lu|", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			start = time_func();
+			for (int k = 0; k < sizes[i]; k++)
+				list_add(&list, j);
+			end = time_func();
+			mean += end - start;
+		}
+		printf("%16lu|", mean / TIMES);
+
+		for (int j = 0; j < TIMES; j++)
+		{
+			start = time_func();
+			for (int k = 0; k < sizes[i]; k++)
+				stack_pop(&stack);
+			end = time_func();
+			mean += end - start;
+		}
+		printf("%16lu|", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			start = time_func();
+			for (int k = 0; k < sizes[i]; k++)
+				list_pop(&list);
+			end = time_func();
+			mean += end - start;
+		}
+		printf("%16lu|\n", mean / TIMES);
+	}
+	stack_delete(&stack);
+	list_delete(&list);
+}
 
 void menu_memory_profile()
 {
 	printf("Memory profile:\n");
 	size_t sizes[] = { 10, 100, 1000, 10000, 100000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
-	printf("|%16s|%33s|%33s|\n", "size", "stack", "list");
+	printf("|%16s|%32s|%32s|\n", "size", "stack", "list");
 	for (int i = 0; i < n_sizes; i++)
 	{
 		size_t size = sizes[i];
 
 		char *string = rand_string(size);
 		char *palindrome = rand_palindrome(size);
-		printf("|%16ld|", size);
-		printf("|%32ld|", stack_memsize_theoretic(size));
+		printf("|%16ld", size);
+		printf("|%32ld", stack_memsize_theoretic(size));
 		printf("|%32ld|\n", list_memsize_theoretic(size));
 
 		free(string);
@@ -225,6 +291,7 @@ void main_loop()
 				break;
 			case 10:
 				menu_speed_profile();
+				menu_speed_profile_pp();
 				break;
 			case 11:
 				menu_memory_profile();

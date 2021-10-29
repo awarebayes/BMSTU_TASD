@@ -6,62 +6,64 @@
 
 void read_str(FILE *fin, FILE *fout, char *hint_msg, char *target, int *ec)
 {
-    if (fout)
-        fprintf(fout, "%s", hint_msg);
-    fgets(target, BUFFER_SIZE, fin);
-    if (ferror(fin))
-        *ec = input_err;
-    else
-    {
-        char *newline = strchr(target, '\n');
+	if (fout)
+		fprintf(fout, "%s", hint_msg);
+	fgets(target, BUFFER_SIZE, fin);
+	if (ferror(fin))
+		*ec = input_err;
+	else
+	{
+		char *newline = strchr(target, '\n');
 		if (newline != NULL)
 			*newline = '\0'; // delete \log_index
-	    else
+		else
 			*ec = input_err;
-    }
+	}
 }
 
 void read_int(FILE *fin, FILE *fout, char *hint_msg, int *target, int *ec)
 {
-    char buffer[BUFFER_SIZE];
-    char temp[BUFFER_SIZE];
-    int temp_int = 0;
-    if (fout)
-        fprintf(fout, "%s", hint_msg);
-    fgets(buffer, BUFFER_SIZE, fin);
+	char buffer[BUFFER_SIZE];
+	char temp[BUFFER_SIZE];
+	int temp_int = 0;
+	if (fout)
+		fprintf(fout, "%s", hint_msg);
+	fgets(buffer, BUFFER_SIZE, fin);
 	if (sscanf(buffer, "%d", target) != 1)
-        *ec = input_err;
-    if (sscanf(buffer, "%d %s", &temp_int, temp) == 2)
-        *ec = input_err;
+		*ec = input_err;
+	if (sscanf(buffer, "%d %s", &temp_int, temp) == 2)
+		*ec = input_err;
 	if (strcmp(buffer, "\n") == 0)
 		fgets(buffer, BUFFER_SIZE, fin);
-    if (*target < 0)
-        *ec = input_err;
+	if (*target < 0)
+		*ec = input_err;
 }
 
 int *read_arr(FILE *fin, FILE *fout, char *hint_msg, int n, int *ec)
 {
-    int *temp_buf = (int*)malloc(n * sizeof(int));
-    int n_scanned = 0;
-    if (fout)
-        fprintf(fout, "%s", hint_msg);
-    for (int i = 0; i < n; i++)
-    {
-        if (fscanf(fin, "%d", temp_buf + i) == 1)
-            n_scanned++;
-    }
-    if (n_scanned != n)
-        *ec = input_err;
-    return temp_buf;
+	int *temp_buf = (int *) malloc(n * sizeof(int));
+	int n_scanned = 0;
+	if (fout)
+		fprintf(fout, "%s", hint_msg);
+	for (int i = 0; i < n; i++)
+	{
+		if (fscanf(fin, "%d", temp_buf + i) == 1)
+			n_scanned++;
+	}
+	if (n_scanned != n)
+		*ec = input_err;
+	return temp_buf;
 }
 
 char *rand_string(size_t size)
 {
-	char *str = (char *)malloc(size+1);
+	char *str = (char *) malloc(size + 1);
 	const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK .!@#$";
-	if (size) {
+	if (size)
+	{
 		--size;
-		for (size_t n = 0; n < size; n++) {
+		for (size_t n = 0; n < size; n++)
+		{
 			int key = random() % (int) (sizeof charset - 1);
 			str[n] = charset[key];
 		}
