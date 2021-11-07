@@ -6,7 +6,7 @@
 
 /*
  * Это динамический связный список
- * Тут он реализует стек.
+ * Тут он реализует очередь.
  */
 
 cons_t *cons_new(size_t size)
@@ -16,9 +16,9 @@ cons_t *cons_new(size_t size)
 	return self;
 }
 
-queue_list_t queue_list_new(size_t el_size)
+queue_list_t queue_list_new(size_t el_size, size_t capacity)
 {
-	queue_list_t self = { .el_size = el_size };
+	queue_list_t self = { .el_size = el_size, .capacity = capacity };
 	return self;
 }
 
@@ -51,6 +51,31 @@ void queue_list_add(queue_list_t *self, void *value)
 		prev_last->next = new_last;
 		self->last = new_last;
 	}
+	self->size++;
+}
+
+void queue_list_insert_front(queue_list_t *self, void *value, size_t index_from_front)
+{
+	cons_t *new_node = cons_new(self->el_size);
+	memcpy(new_node->value, value, self->el_size);
+	self->size++;
+	cons_t *prev_node = NULL;
+	cons_t *next_node = self->first;
+	if (next_node == NULL)
+		self->first = self->last = new_node;
+	else
+	{
+		for (size_t i = 0; i < index_from_front && next_node; i++)
+		{
+			prev_node = next_node;
+			next_node = next_node->next;
+		}
+		if (prev_node != NULL) // el_size = 0
+			prev_node->next = new_node;
+		else
+			self->first = new_node;
+		new_node->next = next_node;
+	}
 }
 
 void queue_list_pop(queue_list_t *self, void *result)
@@ -69,16 +94,22 @@ void queue_list_pop(queue_list_t *self, void *result)
 
 	if (self->first == NULL)
 		self->last = NULL;
+	self->size--;
 }
 
-size_t cons_memsize(cons_t *self)
+int queue_list_full(queue_list_t *self)
+{
+	return self->size == self->capacity;
+}
+
+size_t cons_memsize(cons_t *self, size_t el_size)
 {
 	size_t res = 0;
 	if (self != NULL)
 	{
-		res = sizeof(int *) + sizeof(int);
+		res = sizeof(cons_t) + el_size;
 		if (self->next != NULL)
-			res += cons_memsize(self->next);
+			res += cons_memsize(self->next, el_size);
 	}
 	return res;
 }
@@ -92,6 +123,11 @@ size_t queue_list_memsize_theoretic(size_t size)
 int queue_list_empty(queue_list_t *self)
 {
 	return self->last == NULL;
+}
+
+size_t queue_list_size(queue_list_t *self)
+{
+	return self->size;
 }
 
 void int_queue_list_print(queue_list_t *self)

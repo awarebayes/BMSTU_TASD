@@ -3,7 +3,7 @@ project(lab_05 C)
 
 set(CMAKE_C_STANDARD 99)
 
-set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra")
+set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -lm")
 set(CMAKE_C_FLAGS_RELEASE_INIT "$(CMAKE_C_FLAGS) -O2 -DNDEBUG")
 set(CMAKE_C_FLAGS_DEBUG_INIT "$(CMAKE_C_FLAGS) -g -DDEBUG")
 
