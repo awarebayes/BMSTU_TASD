@@ -13,7 +13,7 @@ typedef struct
 
 typedef struct
 {
-	timespan_t await;
+	timespan_t fetch;
 	timespan_t work_1;
 	timespan_t work_2;
 } simulation_times_t;
@@ -29,6 +29,6 @@ typedef struct
 } sim_log_t;
 
 // queue_kind определён в queue_h: list / vector queue
-void simulate(simulation_times_t times, int queue_kind);
+void simulate(simulation_times_t times, int queue_kind, int print);
 
 #endif //LAB_05_SOLUTION_H

@@ -23,6 +23,7 @@ queue_vec_t queue_vec_new(size_t el_size, size_t capacity)
 void queue_vec_delete(queue_vec_t *self)
 {
 	free(self->data);
+	self->data = NULL;
 }
 
 // adds to back
@@ -64,12 +65,13 @@ void queue_vec_insert_swap_front(queue_vec_t *self, void *value, size_t index_fr
 	else
 	{
 		queue_vec_add_front(self, value);
-		void *added_address = self->pout;
-		void *previous_address = (char *) self->pout + index_from_front * self->el_size;
-		if ((char *) previous_address >= (char *) self->data + self->capacity * self->el_size)
+		char *added_address = self->pout;
+		char *previous_address = (char *) self->pout + index_from_front * self->el_size;
+		char *upper_bound =   (char *) self->data + self->capacity * self->el_size;
+		if (previous_address >= upper_bound)
 		{
-			ptrdiff_t offset = (char *) self->data - (char *) previous_address;
-			previous_address = (char *) self->data + self->capacity * self->el_size - offset;
+			ptrdiff_t offset = previous_address - upper_bound;
+			previous_address = (char *) self->data + offset;
 		}
 		memswap(added_address, previous_address, self->el_size);
 	}
@@ -90,4 +92,9 @@ int queue_vec_empty(queue_vec_t *self)
 size_t queue_vec_size(queue_vec_t *self)
 {
 	return self->size;
+}
+
+size_t queue_vec_memsize_theoretic(size_t capacity, size_t el_size)
+{
+	return sizeof(queue_vec_t) + capacity * el_size;
 }

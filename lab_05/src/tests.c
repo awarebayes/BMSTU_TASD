@@ -59,6 +59,41 @@ void check_list_queue()
 	}
 	assert(queue_list_empty(&q));
 
+
+	for (int i = 0; i < 10; i++)
+		queue_list_add(&q, &i);
+
+	queue_list_insert_front(&q, &ott, 4);
+
+
+	for (int i = 0; i < 4; i++)
+	{
+		queue_list_pop(&q, &pop_res);
+		assert(pop_res == i);
+	}
+
+	queue_list_pop(&q, &pop_res);
+	assert(pop_res == ott); // 0 1 2 3
+
+	for (int i = 4; i < 10; i++)
+	{
+		queue_list_pop(&q, &pop_res);
+		assert(pop_res == i);
+	}
+
+	assert(queue_list_empty(&q));
+
+	queue_list_insert_front(&q, &ott, 4);
+	queue_list_pop(&q, &pop_res);
+	assert(pop_res == ott);
+
+	queue_list_add(&q, &one);
+	queue_list_insert_front(&q, &ott, 4);
+	queue_list_pop(&q, &pop_res);
+	assert(pop_res == one);
+	queue_list_pop(&q, &pop_res);
+	assert(pop_res == ott);
+
 	queue_list_delete(&q);
 }
 

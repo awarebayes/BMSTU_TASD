@@ -15,6 +15,6 @@ int main()
 {
 	srand(time(NULL));   // Initialization, should only be called once.
 	log_init();
-	// check_all();
+	check_all();
 	main_loop();
 }

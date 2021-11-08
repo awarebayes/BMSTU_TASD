@@ -70,6 +70,8 @@ void queue_list_insert_front(queue_list_t *self, void *value, size_t index_from_
 			prev_node = next_node;
 			next_node = next_node->next;
 		}
+		if (next_node == NULL)
+			self->last = new_node;
 		if (prev_node != NULL) // el_size = 0
 			prev_node->next = new_node;
 		else
@@ -114,9 +116,9 @@ size_t cons_memsize(cons_t *self, size_t el_size)
 	return res;
 }
 
-size_t queue_list_memsize_theoretic(size_t size)
+size_t queue_list_memsize_theoretic(size_t size, size_t el_size)
 {
-	return sizeof(queue_list_t) + sizeof(cons_t) * size;
+	return sizeof(queue_list_t) + (sizeof(cons_t)  + el_size)* size;
 }
 
 

@@ -34,7 +34,7 @@ int queue_vec_full(queue_vec_t *self);
 
 void int_queue_vec_print(queue_vec_t *self);
 
-size_t queue_list_memvec_theoretic(size_t size);
+size_t queue_vec_memsize_theoretic(size_t capacity, size_t el_size);
 
 size_t queue_vec_size(queue_vec_t *self);
 

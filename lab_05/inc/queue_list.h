@@ -51,6 +51,6 @@ size_t queue_list_size(queue_list_t *self);
 
 void int_queue_list_print(queue_list_t *self);
 
-size_t queue_list_memsize_theoretic(size_t size);
+size_t queue_list_memsize_theoretic(size_t size, size_t el_size);
 
 #endif // !__CONS_H__
