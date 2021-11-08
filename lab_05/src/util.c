@@ -14,45 +14,21 @@ uint64_t ticks(void)
 	return tmp;
 }
 
-static void swap_byte(void* a, void* b, size_t count)
+void memswap(void *a, void *b, size_t size)
 {
-	char* x = (char*) a;
-	char* y = (char*) b;
+	char *a_swap = (char *) a, *b_swap = (char *) b;
+	char *a_end = (char *) a + size;
 
-	while (count--) {
-		char t = *x; *x = *y; *y = t;
-		x += 1;
-		y += 1;
-	}
-}
-
-static void swap_word(void* a, void* b, size_t count)
-{
-	char* x = (char*) a;
-	char* y = (char*) b;
-	long t[1];
-
-	while (count--) {
-		memcpy(t, x, sizeof(long));
-		memcpy(x, y, sizeof(long));
-		memcpy(y, t, sizeof(long));
-		x += sizeof(long);
-		y += sizeof(long);
-	}
-}
-
-void memswap(void* a, void* b, size_t size)
-{
-	size_t words = size / sizeof(long);
-	size_t bytes = size % sizeof(long);
-	swap_word(a, b, words);
-	if (bytes)
+	while (a_swap < a_end)
 	{
-		a = (char *) a + words * sizeof(long);
-		b = (char *) b + words * sizeof(long);
-		swap_byte(a, b, bytes);
+		char temp = *a_swap;
+		*a_swap = *b_swap;
+		*b_swap = temp;
+
+		a_swap++, b_swap++;
 	}
 }
+
 
 float rand_float(float low, float high)
 {
@@ -84,7 +60,7 @@ void read_float(FILE *fin, FILE *fout, char *hint_msg, float *target, int *ec)
 {
 	char buffer[BUFFER_SIZE];
 	char temp[BUFFER_SIZE];
-	int temp_int = 0;
+	float temp_int = 0;
 	if (fout)
 		fprintf(fout, "%s", hint_msg);
 	fgets(buffer, BUFFER_SIZE, fin);

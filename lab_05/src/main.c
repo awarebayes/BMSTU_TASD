@@ -8,7 +8,7 @@
 #include <menu.h>
 #include "memory.h"
 #include "tests.h"
-#include "solution.h"
+#include "simulate_queue.h"
 #include "queue.h"
 
 int main()

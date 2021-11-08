@@ -5,14 +5,11 @@
 #include "queue.h"
 #include "task.h"
 #include "util.h"
-#include "solution.h"
+#include "simulate_queue.h"
 #include <assert.h>
 #include <math.h>
 
-float await(timespan_t time)
-{
-	return rand_float(time.low, time.high);
-}
+#define CAPACITY 20
 
 void print_log(sim_log_t *log, size_t queue_size)
 {
@@ -41,7 +38,12 @@ float ts_mean(timespan_t t)
 	return fmean(t.low, t.high);
 }
 
-void simulate(simulation_times_t times, int queue_kind, int print)
+float await(timespan_t time)
+{
+	return rand_float(time.low, time.high);
+}
+
+void simulate(simulation_times_t times, int queue_kind)
 {
 	int pos_from_front = 4;
 	int target_tasks = 1000;
@@ -53,9 +55,7 @@ void simulate(simulation_times_t times, int queue_kind, int print)
 	float time_until_fetch = 0;
 	float time_until_work = 0;
 
-	size_t capacity = 20;
-
-	queue_t queue = queue_new(queue_kind, sizeof(task_t), capacity);
+	queue_t queue = queue_new(queue_kind, sizeof(task_t), CAPACITY);
 	sim_log_t log = { .tasks_in = 1 };
 
 	task_t task_2 = task_new(2);
@@ -72,7 +72,7 @@ void simulate(simulation_times_t times, int queue_kind, int print)
 		{
 			time_until_fetch = await(times.fetch);
 			task_t new_task = task_new(1);
-			if (queue_size(&queue) <= capacity - 1) // leave space for 2nd task
+			if (queue_size(&queue) <= CAPACITY - 1) // leave space for 2nd task
 			{
 				queue_add(&queue, &new_task);
 				log.tasks_in += 1;
@@ -108,7 +108,7 @@ void simulate(simulation_times_t times, int queue_kind, int print)
 				log.tasks_in += 1;
 				queue_insert_front(&queue, &task_to_process, pos_from_front);
 			}
-			if (print && log.tasks_out_1 % 100 == 0)
+			if (log.tasks_out_1 % 100 == 0)
 				print_log(&log, queue_size(&queue));
 			// }
 		}
@@ -121,10 +121,11 @@ void simulate(simulation_times_t times, int queue_kind, int print)
 	//if (print)
 	//{
 		float prob_sampling_second = 1.0f / (float) (pos_from_front);
-		float prob_sampling_first = 1.0f - prob_sampling_first;
+		float prob_sampling_first = 1.0f - prob_sampling_second;
 		float mean_work_rate = prob_sampling_first * ts_mean(times.work_1) \
                              + prob_sampling_second * ts_mean(times.work_2);
-		float expected_time = mean_work_rate * (float) target_tasks;
+		float target_tasks_both_types = (float)target_tasks * (1 + prob_sampling_second);
+		float expected_time = mean_work_rate * (float) target_tasks_both_types;
 		float err = fabsf(work_time - expected_time) / expected_time * 100;
 
 
@@ -144,7 +145,65 @@ void simulate(simulation_times_t times, int queue_kind, int print)
 		       log.calls,
 		       hold_time
 		);
-	//}
 
 	queue_delete(&queue);
+}
+
+uint64_t simulate_profile(simulation_times_t times, int queue_kind)
+{
+	int pos_from_front = 4;
+	int target_tasks = 1000;
+
+	float time_until_fetch = 0;
+	float time_until_work = 0;
+	int tasks_out_1 = 0;
+
+	uint64_t start = 0;
+	uint64_t end = 0;
+
+	queue_t queue = queue_new(queue_kind, sizeof(task_t), CAPACITY);
+
+	start = ticks();
+
+	task_t task_2 = task_new(2);
+	queue_add(&queue, &task_2);
+
+	while (tasks_out_1 != target_tasks)
+	{
+
+		// fetch a new task
+		if (time_until_fetch == 0)
+		{
+			time_until_fetch = await(times.fetch);
+			task_t new_task = task_new(1);
+			if (queue_size(&queue) <= CAPACITY - 1) // leave space for 2nd task
+			{
+				queue_add(&queue, &new_task);
+			}
+		}
+
+		//  process current task
+		if (time_until_work == 0)
+		{
+			task_t task_to_process = { 0 };
+			queue_pop(&queue, &task_to_process);
+
+			timespan_t work_timespan = task_to_process.type == 1 ? times.work_1 : times.work_2;
+			time_until_work = await(work_timespan);
+
+
+			if (task_to_process.type == 2)
+				queue_insert_front(&queue, &task_to_process, pos_from_front);
+			else
+				tasks_out_1 += 1;
+		}
+
+		float smallest_time = fminf(time_until_work, time_until_fetch);
+		time_until_work -= smallest_time;
+		time_until_fetch -= smallest_time;
+	}
+	end = ticks();
+	queue_delete(&queue);
+
+	return end-start;
 }

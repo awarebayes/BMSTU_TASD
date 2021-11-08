@@ -5,7 +5,7 @@
 #include "menu.h"
 #include "util.h"
 #include "queue.h"
-#include "solution.h"
+#include "simulate_queue.h"
 #include "memory.h"
 #include "inttypes.h"
 
@@ -146,32 +146,23 @@ void menu_memory_profile()
 
 void menu_simulation_profile()
 {
-	uint64_t (*time_func)(void) = ticks;
 	printf("Running simulation...\n");
 
 
 	uint64_t mean = 0;
-	uint64_t start = 0;
-	uint64_t end = 0;
 	for (int j = 0; j < TIMES; j++)
 	{
-		start = time_func();
-		simulate(default_times, queue_list_kind, 0);
-		end = time_func();
-		mean += end - start;
+		mean += simulate_profile(default_times, queue_list_kind);
 	}
-	printf("List takes %lu on average", mean / TIMES);
+	printf("List takes %lu on average\n", mean / TIMES);
 
 
 	mean = 0;
 	for (int j = 0; j < TIMES; j++)
 	{
-		start = time_func();
-		simulate(default_times, queue_vec_kind, 0);
-		end = time_func();
-		mean += end - start;
+		mean += simulate_profile(default_times, queue_vec_kind);
 	}
-	printf("Vector takes %lu on average", mean / TIMES);
+	printf("Vector takes %lu on average\n", mean / TIMES);
 
 }
 
@@ -199,10 +190,10 @@ void main_loop()
 		switch (choice)
 		{
 			case 0:
-				simulate(times, queue_list_kind, 1);
+				simulate(times, queue_list_kind);
 				break;
 			case 1:
-				simulate(times, queue_vec_kind, 1);
+				simulate(times, queue_vec_kind);
 				break;
 			case 2:
 				log_print_deleted_addresses();

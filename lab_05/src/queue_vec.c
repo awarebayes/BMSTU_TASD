@@ -41,8 +41,13 @@ void queue_vec_add(queue_vec_t *self, void *value)
 // can cause segfault, use just add, when queue is empty
 void queue_vec_add_front(queue_vec_t *self, void *value)
 {
-	self->pout -= self->el_size;
-	// if (self->pout < self->data)
+	if (self->pout - self->el_size >= (char*)self->data)
+		self->pout -= self->el_size;
+	else
+	{
+		char *upper_bound =   (char *) self->data + self->capacity * self->el_size;
+		self->pout = upper_bound - self->el_size;
+	}
 	memcpy(self->pout, value, self->el_size);
 	self->size++;
 }
@@ -72,8 +77,10 @@ void queue_vec_insert_swap_front(queue_vec_t *self, void *value, size_t index_fr
 		{
 			ptrdiff_t offset = previous_address - upper_bound;
 			previous_address = (char *) self->data + offset;
+			memswap(added_address, previous_address, self->el_size);
 		}
-		memswap(added_address, previous_address, self->el_size);
+		else
+			memswap(added_address, previous_address, self->el_size);
 	}
 }
 

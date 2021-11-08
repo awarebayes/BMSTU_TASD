@@ -2,8 +2,10 @@
 // Created by dev on 11/3/21.
 //
 
-#ifndef LAB_05_SOLUTION_H
-#define LAB_05_SOLUTION_H
+#ifndef LAB_05_SIMULATE_QUEUE_H
+#define LAB_05_SIMULATE_QUEUE_H
+
+#include <stdint.h>
 
 typedef struct
 {
@@ -29,6 +31,7 @@ typedef struct
 } sim_log_t;
 
 // queue_kind определён в queue_h: list / vector queue
-void simulate(simulation_times_t times, int queue_kind, int print);
+void simulate(simulation_times_t times, int queue_kind);
+uint64_t simulate_profile(simulation_times_t times, int queue_kind);
 
-#endif //LAB_05_SOLUTION_H
+#endif //LAB_05_SIMULATE_QUEUE_H
