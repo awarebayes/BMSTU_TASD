@@ -41,21 +41,43 @@ int get_choice(int argc, char **argv)
 	return choice;
 }
 
+int ts_valid(timespan_t *t)
+{
+	return t->low <= t->high;
+}
+
+timespan_t input_ts(int *ec)
+{
+	timespan_t result = { 0 };
+	if (!*ec)
+		read_float(stdin, stdout, "\tlow: ", &result.low, ec);
+	if (!*ec)
+		read_float(stdin, stdout, "\thigh: ", &result.high, ec);
+	if (!ts_valid(&result))
+		*ec = input_err;
+	return result;
+}
+
 simulation_times_t input_times(int *ec)
 {
 	simulation_times_t times = { 0 };
+
 	if (!*ec)
-		read_float(stdin, stdout, "times -> fetch -> low: ", &times.fetch.low, ec);
+	{
+		printf("times -> fetch:\n");
+		times.fetch = input_ts(ec);
+	}
+
 	if (!*ec)
-		read_float(stdin, stdout, "times -> fetch -> high: ", &times.fetch.high, ec);
+	{
+		printf("times -> work_1:\n");
+		times.work_1 = input_ts(ec);
+	}
 	if (!*ec)
-		read_float(stdin, stdout, "times -> work_1 -> low: ", &times.work_1.low, ec);
-	if (!*ec)
-		read_float(stdin, stdout, "times -> work_1 -> high: ", &times.work_1.high, ec);
-	if (!*ec)
-		read_float(stdin, stdout, "times -> work_2 -> low: ", &times.work_2.low, ec);
-	if (!*ec)
-		read_float(stdin, stdout, "times -> work_2 -> high: ", &times.work_2.high, ec);
+	{
+		printf("times -> work_2:\n");
+		times.work_2 = input_ts(ec);
+	}
 	return times;
 }
 
@@ -166,6 +188,13 @@ void menu_simulation_profile()
 
 }
 
+void menu_overhead()
+{
+	printf("vector struct size %ldB\n", sizeof(queue_vec_t));
+	printf("list struct size %ldB\n", sizeof(queue_list_t));
+
+}
+
 void main_loop()
 {
 	int choice = 0;
@@ -177,6 +206,7 @@ void main_loop()
 			"[Profile]  - Profile pop/push operations",
 			"[Profile]  - Profile memory",
 			"[Profile]  - Profile simulation",
+			"[Profile]  - Profile struct size",
 	};
 
 	simulation_times_t times = default_times;
@@ -203,6 +233,8 @@ void main_loop()
 				simulation_times_t new_times = input_times(&ec);
 				if (!ec)
 					times = new_times;
+				else
+					printf("There was an error with your input\n");
 				break;
 
 			case 4:
@@ -213,6 +245,8 @@ void main_loop()
 				break;
 			case 6:
 				menu_simulation_profile();
+			case 7:
+				menu_overhead();
 			default:
 				break;
 		}

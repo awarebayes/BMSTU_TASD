@@ -13,7 +13,7 @@
 
 int main()
 {
-	srand(time(NULL));   // Initialization, should only be called once.
+	srand(time(NULL));
 	log_init();
 	check_all();
 	main_loop();

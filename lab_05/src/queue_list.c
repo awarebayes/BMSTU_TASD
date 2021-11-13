@@ -118,7 +118,8 @@ size_t cons_memsize(cons_t *self, size_t el_size)
 
 size_t queue_list_memsize_theoretic(size_t size, size_t el_size)
 {
-	return sizeof(queue_list_t) + (sizeof(cons_t)  + el_size)* size;
+
+	return sizeof(queue_list_t) + (sizeof(cons_t)  + el_size) * size;
 }
 
 
