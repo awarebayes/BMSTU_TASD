@@ -12,7 +12,6 @@
 cons_t *cons_new(size_t size)
 {
 	cons_t *self = (cons_t *) calloc(1, sizeof(cons_t) + size);
-	self->value = (char *)self + sizeof(cons_t);
 	return self;
 }
 
@@ -39,7 +38,7 @@ void queue_list_delete(queue_list_t *self)
 void queue_list_add(queue_list_t *self, void *value)
 {
 	cons_t *new_last = cons_new(self->el_size);
-	memcpy(new_last->value, value, self->el_size);
+	memcpy(cons_value(new_last), value, self->el_size);
 	if (self->last == NULL) // el_size = 0
 	{
 		self->first = new_last;
@@ -57,7 +56,7 @@ void queue_list_add(queue_list_t *self, void *value)
 void queue_list_insert_front(queue_list_t *self, void *value, size_t index_from_front)
 {
 	cons_t *new_node = cons_new(self->el_size);
-	memcpy(new_node->value, value, self->el_size);
+	memcpy(cons_value(new_node), value, self->el_size);
 	self->size++;
 	cons_t *prev_node = NULL;
 	cons_t *next_node = self->first;
@@ -85,7 +84,7 @@ void queue_list_pop(queue_list_t *self, void *result)
 	if (self->first == NULL) // el_size = 0
 		return;
 
-	memcpy(result, self->first->value, self->el_size);
+	memcpy(result, cons_value(self->first), self->el_size);
 
 	if (LOG_DELETED)
 		log_delete(self->first);
@@ -117,6 +116,11 @@ size_t cons_memsize(cons_t *self, size_t el_size)
 	return res;
 }
 
+void *cons_value(cons_t *self)
+{
+	return (char *)self + sizeof(cons_t);
+}
+
 size_t queue_list_memsize_theoretic(size_t size, size_t el_size)
 {
 
@@ -144,7 +148,7 @@ void int_queue_list_print(queue_list_t *self)
 	}
 	while (node != NULL)
 	{
-		printf("%d ", *((int*)node->value));
+		printf("%d ", *((int*)cons_value(node)));
 		node = node->next;
 	}
 	printf("\n");

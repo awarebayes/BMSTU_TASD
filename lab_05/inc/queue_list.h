@@ -15,9 +15,8 @@ struct cons_t
 {
 	// those are stored together
 	// preserving cache locality
-	// | *next | *value |       value        |
+	// | *next |       value        |
 	struct cons_t *next;
-	void *value;
 };
 
 typedef struct
@@ -32,6 +31,8 @@ typedef struct
 cons_t *cons_new(size_t size);
 
 size_t cons_memsize(cons_t *self, size_t el_size);
+
+void *cons_value(cons_t *self);
 
 queue_list_t queue_list_new(size_t el_size, size_t capacity);
 
