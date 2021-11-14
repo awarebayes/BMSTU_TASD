@@ -103,6 +103,5 @@ size_t queue_vec_size(queue_vec_t *self)
 
 size_t queue_vec_memsize_theoretic(size_t capacity, size_t el_size)
 {
-	printf("vec overhead %ld\n", sizeof(queue_vec_t));
 	return sizeof(queue_vec_t) + capacity * el_size;
 }

@@ -72,8 +72,7 @@ void simulate(simulation_times_t times, int queue_kind)
 		{
 			time_until_fetch = await(times.fetch);
 			task_t new_task = task_new(1);
-			// TODO: Оперативная память
-			if (queue_size(&queue) <= CAPACITY) // leave space for 2nd task
+			if (!queue_full(&queue)) // leave space for 2nd task
 			{
 				queue_add(&queue, &new_task);
 				log.tasks_in += 1;
@@ -82,6 +81,7 @@ void simulate(simulation_times_t times, int queue_kind)
 			{
 				log.tasks_failed += 1;
 				// TODO
+				printf("Queue is full \n");
 				exit(1);
 			}
 			fetch_time += time_until_fetch;
@@ -179,7 +179,7 @@ uint64_t simulate_profile(simulation_times_t times, int queue_kind)
 		{
 			time_until_fetch = await(times.fetch);
 			task_t new_task = task_new(1);
-			if (queue_size(&queue) <= CAPACITY - 1) // leave space for 2nd task
+			if (!queue_full(&queue)) // leave space for 2nd task
 			{
 				queue_add(&queue, &new_task);
 			}
@@ -213,4 +213,3 @@ uint64_t simulate_profile(simulation_times_t times, int queue_kind)
 }
 
 
-// при каком % список выгоднее

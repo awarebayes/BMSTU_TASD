@@ -101,7 +101,8 @@ void queue_list_pop(queue_list_t *self, void *result)
 
 int queue_list_full(queue_list_t *self)
 {
-	return self->size == self->capacity;
+	// return self->size == self->capacity;
+	return 0;
 }
 
 size_t cons_memsize(cons_t *self, size_t el_size)

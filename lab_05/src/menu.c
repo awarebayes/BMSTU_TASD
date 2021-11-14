@@ -152,17 +152,32 @@ void menu_speed_profile_pp()
 void menu_memory_profile()
 {
 	printf("Memory profile (holding int):\n");
-	size_t sizes[] = { 10, 100, 1000, 10000, 100000 };
-	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
-	printf("|%16s|%32s|%32s|\n", "size", "vec", "list");
-	for (int i = 0; i < n_sizes; i++)
-	{
-		size_t size = sizes[i];
 
-		printf("|%16ld", size);
-		printf("|%32ld", queue_vec_memsize_theoretic(size, sizeof(int)));
-		printf("|%32ld|\n", queue_list_memsize_theoretic(size, sizeof(int)));
+	int size = 10000;
+	int i_broken = 0;
+	size_t size_broken = 0;
+	size_t vec_size = queue_vec_memsize_theoretic(size, sizeof(int));
+	int flag = 1;
+	int print_every = 500;
+	printf("Queue of %d elements\n", size);
+	printf("Vector queue size in bytes: %ld\n", vec_size);
+	for (int i = 0; i < size && flag; i++)
+	{
+		size_t list_size = queue_list_memsize_theoretic(i, sizeof(int));
+		if (list_size > vec_size )
+		{
+			i_broken = i;
+			size_broken = list_size;
+			flag = 0;
+		}
+		if (i % print_every == 0)
+		{
+			printf("Elements: %d, size list: %ld, size of vector: %ld\n", i, list_size, vec_size);
+		}
 	}
+
+	printf("Broken at %d, where list_size = %ld\n", i_broken, size_broken);
+	printf("Full %f %%", (float)i_broken / (float)size * 100);
 }
 
 
@@ -192,7 +207,11 @@ void menu_overhead()
 {
 	printf("vector struct size %ldB\n", sizeof(queue_vec_t));
 	printf("list struct size %ldB\n", sizeof(queue_list_t));
+	printf("node struct size %ldB\n", sizeof(cons_t));
+	printf("node struct size owning int %ldB\n", sizeof(cons_t) + sizeof(int));
 
+	printf("list with 10 integers is %ldB\n", queue_list_memsize_theoretic(10, sizeof(int)));
+	printf("vector with 10 integers is %ldB\n", queue_vec_memsize_theoretic(10, sizeof(int)));
 }
 
 void main_loop()
@@ -245,8 +264,10 @@ void main_loop()
 				break;
 			case 6:
 				menu_simulation_profile();
+				break;
 			case 7:
 				menu_overhead();
+				break;
 			default:
 				break;
 		}

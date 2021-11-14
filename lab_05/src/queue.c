@@ -22,7 +22,6 @@ void queue_add(queue_t *self, void *value)
 		queue_vec_add(&self->kind.vec, value);
 }
 
-
 void queue_insert_front(queue_t *self, void *value, int index_from_front)
 {
 	if (self->type == queue_list_kind)
@@ -30,7 +29,6 @@ void queue_insert_front(queue_t *self, void *value, int index_from_front)
 	else
 		queue_vec_insert_swap_front(&self->kind.vec, value, index_from_front);
 }
-
 
 void queue_delete(queue_t *self)
 {
