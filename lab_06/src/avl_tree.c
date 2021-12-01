@@ -112,7 +112,10 @@ struct avl_node *avl_tree_insert(struct avl_node *self, struct avl_node *node)
 
 	int cmp = strcmp(self->data, node->data);
 	if (cmp == 0)
-		assert(0);
+	{
+		printf("Tree cannot have two similar keys, exiting...\n");
+		exit(EXIT_FAILURE);
+	}
 	else if (cmp > 0)
 		self->left = avl_tree_insert(self->left, node);
 	else
@@ -138,7 +141,7 @@ int avl_tree_assert_valid(struct avl_node *self)
 		return 1;
 
 	assert(avl_tree_get_balance(self) <= 1);
-	assert(avl_tree_get_balance(self) >=-1);
+	assert(avl_tree_get_balance(self) >= -1);
 
 	if (self->left != NULL)
 	{
@@ -159,7 +162,6 @@ struct avl_node *avl_tree_remove(struct avl_node *self, char *key)
 {
 	if (self == NULL)
 		return NULL;
-
 
 	if (strcmp(key, self->data) < 0)
 		self->left = avl_tree_remove(self->left, key);
@@ -223,7 +225,7 @@ struct avl_node *avl_tree_search(struct avl_node *self, const char *data)
 	int cmp = strcmp(self->data, data);
 	if (cmp == 0)
 		return self;
-	else if (cmp < 0)
+	else if (cmp > 0)
 		return avl_tree_search(self->left, data);
 	else
 		return avl_tree_search(self->right, data);
@@ -238,43 +240,38 @@ void avl_tree_apply_preorder(struct avl_node *self, void (*f)(struct avl_node *,
 	avl_tree_apply_preorder(self->right, f, arg);
 }
 
-static void to_dot(struct avl_node *self, void *param)
+struct avl_node *avl_tree_read(char *cwd, char *file_name_no_ext, int *ec)
 {
-	FILE *f = param;
-	if (self->left)
-		fprintf(f, "%s -> %s;\n", self->data, self->left->data);
-
-	if (self->right)
-		fprintf(f, "%s -> %s;\n", self->data, self->right->data);
-}
-
-void avl_tree_to_dot(char *cwd, char *tree_name, struct avl_node *self)
-{
+	int local_ec = 0;
 	char buf[BUF_SIZE] = { 0 };
-	snprintf(buf, BUF_SIZE, "%s%s.dot", cwd, tree_name);
-	FILE *f = fopen(buf, "w");
-	fprintf(f, "digraph %s {\n", tree_name);
-
-	avl_tree_apply_preorder(self, to_dot, f);
-
-	fprintf(f, "}\n");
-	fclose(f);
-}
-
-struct avl_node *avl_tree_read(char *cwd, char *tree_name)
-{
-	char buf[BUF_SIZE] = { 0 };
-	snprintf(buf, BUF_SIZE, "%s%s.txt", cwd, tree_name);
+	snprintf(buf, BUF_SIZE, "%s%s", cwd, file_name_no_ext);
 	FILE *f = fopen(buf, "r");
+	if (!f)
+		local_ec = input_err;
 	struct avl_node *self = NULL;
 	char temp[BUF_SIZE];
-	while (!feof(f))
+	while (!feof(f) && !local_ec)
 	{
-		fscanf(f, "%s", temp);
+		if (fscanf(f, "%s", temp) != 1)
+			local_ec = input_err;
 		struct avl_node *node = avl_node_new(temp);
 		self = avl_tree_insert(self, node);
 	}
 	fclose(f);
+	if (ec)
+		*ec = local_ec;
 	return self;
 }
 
+int avl_tree_n_nodes(struct avl_node *self)
+{
+	if (self == NULL)
+		return 0;
+
+	int acc = 1;
+	if (self->left != NULL)
+		acc += avl_tree_n_nodes(self->left);
+	if (self->right != NULL)
+		acc += avl_tree_n_nodes(self->right);
+	return acc;
+}

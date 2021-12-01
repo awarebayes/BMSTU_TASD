@@ -7,7 +7,6 @@
 #include <assert.h>
 #include <bits/types/FILE.h>
 #include <stdio.h>
-#include <queue_list.h>
 #include <stdlib.h>
 #include <util.h>
 #include "b_tree.h"
@@ -35,7 +34,10 @@ struct b_node *b_tree_insert(struct b_node *self, struct b_node *node)
 		return node;
 	int cmp = strcmp(self->data, node->data);
 	if (cmp == 0)
-		assert(0);
+	{
+		printf("Tree cannot have two similar keys, exiting...\n");
+		exit(EXIT_FAILURE);
+	}
 	else if (cmp > 0)
 		self->left = b_tree_insert(self->left, node);
 	else
@@ -51,7 +53,7 @@ struct b_node *b_tree_search(struct b_node *self, const char *data)
 	int cmp = strcmp(self->data, data);
 	if (cmp == 0)
 		return self;
-	else if (cmp < 0)
+	else if (cmp > 0)
 		return b_tree_search(self->left, data);
 	else
 		return b_tree_search(self->right, data);
@@ -128,43 +130,27 @@ void b_tree_apply_preorder(struct b_node *self, void (*f)(struct b_node *, void 
 	b_tree_apply_preorder(self->right, f, arg);
 }
 
-static void to_dot(struct b_node *self, void *param)
+struct b_node *b_tree_read(char *cwd, char *file_name_no_ext, int *ec)
 {
-	FILE *f = param;
-	if (self->left)
-		fprintf(f, "%s -> %s;\n", self->data, (self->left->data));
-
-	if (self->right)
-		fprintf(f, "%s -> %s;\n", self->data, (self->right->data));
-}
-
-void b_tree_to_dot(char *cwd, char *tree_name, struct b_node *self)
-{
+	int local_ec = 0;
 	char buf[BUF_SIZE] = { 0 };
-	snprintf(buf, BUF_SIZE, "%s%s.dot", cwd, tree_name);
-	FILE *f = fopen(buf, "w");
-	fprintf(f, "digraph %s {\n", tree_name);
-
-	b_tree_apply_preorder(self, to_dot, f);
-
-	fprintf(f, "}\n");
-	fclose(f);
-}
-
-struct b_node *b_tree_read(char *cwd, char *tree_name)
-{
-	char buf[BUF_SIZE] = { 0 };
-	snprintf(buf, BUF_SIZE, "%s%s.txt", cwd, tree_name);
+	snprintf(buf, BUF_SIZE, "%s%s", cwd, file_name_no_ext);
 	FILE *f = fopen(buf, "r");
+	if (!f)
+		local_ec = input_err;
 	struct b_node *self = NULL;
 	char temp[BUF_SIZE];
-	while (!feof(f))
+	while (!feof(f) && !local_ec)
 	{
-		fscanf(f, "%s", temp);
+		if (fscanf(f, "%s", temp) != 1)
+			local_ec = input_err;
 		struct b_node *node = b_node_new(temp);
 		self = b_tree_insert(self, node);
 	}
-	fclose(f);
+	if (ec != NULL)
+		*ec = local_ec;
+	if (f)
+		fclose(f);
 	return self;
 }
 
