@@ -37,14 +37,18 @@ hash_set hash_set_new(size_t capacity, hash_func_t hash_func);
 void hash_set_delete(hash_set *self);
 
 // @returns: number of comparisons
-int hash_set_insert(hash_set *self, char *key);
+int hash_set_add(hash_set *self, char *key);
 
-node *hash_set_find(hash_set *self, char *key);
+node *hash_set_search(hash_set *self, char *key);
 
 void hash_set_print(hash_set *self);
 
 hash_set hash_set_read(char *cwd, char *file_name_no_ext, size_t capacity, hash_func_t hash_func, int *ec);
 
 node *hash_set_remove(hash_set *self, char *key);
+
+hash_set hash_set_random(int size, int capacity, char *random_word);
+
+node *hash_set_search_cmp_log(hash_set *self, char *key, int *cmp);
 
 #endif //LAB_06_HASH_SET_H

@@ -7,9 +7,9 @@
 #include "hash_set.h"
 #include "util.h"
 #include "graphviz.h"
+#include "nosql.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 #include <assert.h>
 
 #define BUF_SIZE 512
@@ -29,27 +29,6 @@ int run_dot(char *cwd, char *tree_name)
 	return res;
 }
 
-// hash function: http://www.cse.yorku.ca/~oz/hash.html#djb2
-int djb2(void *data)
-{
-	unsigned char *str = data;
-	int hash = 5381;
-	int c;
-	while ((c = *str++))
-		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-	return hash;
-}
-
-// hash function: http://www.cse.yorku.ca/~oz/hash.html#sdbm
-int sdbm(void *data)
-{
-	unsigned char *str = data;
-	int hash = 0;
-	int c;
-	while ((c = *str++))
-		hash = c + (hash << 6) + (hash << 16) - hash;
-	return hash;
-}
 
 int get_choice(int argc, char **argv)
 {
@@ -123,27 +102,280 @@ void profile_deletion(struct b_node *btree, struct avl_node *avl, hash_set hset)
 	printf("Mean avl tree deletion: %lu\n", mean / TIMES);
 
 	mean = 0;
-	for (int j = 0; j < 1; j++)
+	for (int j = 0; j < TIMES; j++)
 	{
 		start = time_func();
 		node *word = hash_set_remove(&hset, word_to_delete);
 		end = time_func();
 		mean += end - start;
 		node_delete(word);
-		hash_set_insert(&hset, word_to_delete);
+		hash_set_add(&hset, word_to_delete);
 	}
 
 	printf("Mean hash set deletion: %lu\n", mean / TIMES);
 }
 
 
+void profile_deletion_random()
+{
+	uint64_t (*time_func)(void) = ticks;
+	uint64_t start = 0, end = 0;
+	uint64_t mean = 0;
+	char word_to_delete[BUF_SIZE] = { 0 };
+
+	printf("Starting to profile deletion...\n");
+
+	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
+	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
+	printf("|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
+	       "hash_set (1000)");
+
+	for (int i = 0; i < n_sizes; i++)
+	{
+
+		int size = (int) sizes[i];
+		printf("|%16d", size);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			struct b_node *btree = b_tree_random(size, word_to_delete);
+			start = time_func();
+			btree = b_tree_remove(btree, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			b_tree_delete(btree);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			struct avl_node *avl = avl_tree_random(size, word_to_delete);
+			start = time_func();
+			avl = avl_tree_remove(avl, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			avl_tree_delete(avl);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			hash_set hset = hash_set_random(size, 100, word_to_delete);
+			start = time_func();
+			node *word = hash_set_remove(&hset, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			node_delete(word);
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			hash_set hset = hash_set_random(size, 1000, word_to_delete);
+			start = time_func();
+			node *word = hash_set_remove(&hset, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			node_delete(word);
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu|\n", mean / TIMES);
+	}
+}
+
+void profile_search_random()
+{
+	uint64_t (*time_func)(void) = ticks;
+	uint64_t start = 0, end = 0;
+	uint64_t mean = 0;
+	char word_to_delete[BUF_SIZE] = { 0 };
+
+	printf("Starting to profile search...\n");
+
+	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
+	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
+	printf("|%16s|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
+	       "hash_set (1000)", "file");
+
+	for (int i = 0; i < n_sizes; i++)
+	{
+
+		int size = (int) sizes[i];
+		printf("|%16d", size);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			struct b_node *btree = b_tree_random(size, word_to_delete);
+			start = time_func();
+			b_tree_search(btree, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			b_tree_delete(btree);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			struct avl_node *avl = avl_tree_random(size, word_to_delete);
+			start = time_func();
+			b_tree_search((struct b_node *) avl, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			avl_tree_delete(avl);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			hash_set hset = hash_set_random(size, 100, word_to_delete);
+			start = time_func();
+			hash_set_search(&hset, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			hash_set hset = hash_set_random(size, 1000, word_to_delete);
+			start = time_func();
+			node *word = hash_set_remove(&hset, word_to_delete);
+			end = time_func();
+			mean += end - start;
+			node_delete(word);
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			FILE *file = tmpfile();
+			nosql_random(file, size, word_to_delete);
+			rewind(file);
+			start = time_func();
+			int search_res = nosql_search(file, word_to_delete, NULL, NULL);
+			end = time_func();
+			assert(search_res == 1);
+			mean += end - start;
+			fclose(file);
+		}
+
+		printf("|%16lu|\n", mean / TIMES);
+	}
+}
+
+void profile_search_comparisons_random()
+{
+	uint64_t mean = 0;
+	char word_to_delete[BUF_SIZE] = { 0 };
+
+	printf("Starting to profile search...\n");
+
+	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
+	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
+	printf("|%16s|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
+	       "hash_set (1000)", "file");
+
+	for (int i = 0; i < n_sizes; i++)
+	{
+
+		int size = (int) sizes[i];
+		printf("|%16d", size);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			int cmps = 0;
+			struct b_node *btree = b_tree_random(size, word_to_delete);
+			b_tree_search_cmp_log(btree, word_to_delete, &cmps);
+			mean += cmps;
+			b_tree_delete(btree);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			int cmps = 0;
+			struct avl_node *avl = avl_tree_random(size, word_to_delete);
+			b_tree_search_cmp_log((struct b_node *) avl, word_to_delete, &cmps);
+			mean += cmps;
+			avl_tree_delete(avl);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			int cmps = 0;
+			hash_set hset = hash_set_random(size, 100, word_to_delete);
+			hash_set_search_cmp_log(&hset, word_to_delete, &cmps);
+			mean += cmps;
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			int cmps = 0;
+			hash_set hset = hash_set_random(size, 1000, word_to_delete);
+			hash_set_search_cmp_log(&hset, word_to_delete, &cmps);
+			mean += cmps;
+			hash_set_delete(&hset);
+		}
+
+		printf("|%16lu", mean / TIMES);
+
+
+		mean = 0;
+		for (int j = 0; j < TIMES; j++)
+		{
+			int cmps = 0;
+			FILE *file = tmpfile();
+			nosql_random(file, size, word_to_delete);
+			rewind(file);
+			int search_res = nosql_search(file, word_to_delete,  &cmps, NULL);
+			mean += cmps;
+			fclose(file);
+		}
+		printf("|%16lu|\n", mean / TIMES);
+	}
+}
+
 void memory_profile()
 {
 	printf("Memory profile:\n");
 	size_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
-	printf("|%16s|%32s|%32s|%32s|%32s|\n", "size", "btree", "avl", "hash_set (full, chains 100)",
-	       "hash_set (full, chains 1000)");
+	printf("|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
+	       "hash_set (1000)");
 	for (int i = 0; i < n_sizes; i++)
 	{
 		size_t size = sizes[i];
@@ -153,10 +385,10 @@ void memory_profile()
 		size_t hash_set_size2 = sizeof(node) * size + sizeof(hash_set) + sizeof(node *) * 1000;
 
 		printf("|%16ld", size);
-		printf("|%32ld", b_tree_size);
-		printf("|%32ld", avl_tree_size);
-		printf("|%32ld", hash_set_size1);
-		printf("|%32ld|\n", hash_set_size2);
+		printf("|%16ld", b_tree_size);
+		printf("|%16ld", avl_tree_size);
+		printf("|%16ld", hash_set_size1);
+		printf("|%16ld|\n", hash_set_size2);
 
 	}
 }
@@ -171,18 +403,11 @@ static inline uint32_t mylog2(const uint32_t x)
 	return y;
 }
 
-uint32_t max(uint32_t x, uint32_t y)
-{
-	if (x > y)
-		return x;
-	return y;
-}
-
 void profile_comparisons()
 {
 
 	printf("Memory profile:\n");
-	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000};
+	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
 	printf("|%16s|%32s|%32s|%32s|%32s|\n", "size", "btree", "avl", "hash_set (full, chains 100)",
 	       "hash_set (full, chains 1000)");
@@ -199,7 +424,6 @@ void profile_comparisons()
 		printf("|%32u", avl_tree_cmp);
 		printf("|%32u", hash_set_cmp1);
 		printf("|%32u|\n", hash_set_cmp2);
-
 	}
 }
 
@@ -210,9 +434,11 @@ void main_loop()
 			"[Task]     - delete word",
 			"[Task]     - visualize",
 			"[HashSet]  - rebuild hash set",
-			"[Profile]  - profile deletion (does not permanently delete word)",
+			"[Profile]  - profile deletion of inputted word",
+			"[Profile]  - profile deletion of random word on random struct",
+			"[Profile]  - profile search of random word on random struct",
+			"[Profile]  - profile # comparisons of random word on random struct",
 			"[Profile]  - memory profile",
-			"[Profile]  - average # comparisons",
 	};
 
 	size_t hash_set_size = 30;
@@ -289,9 +515,18 @@ void main_loop()
 				profile_deletion(btree, avl, hset);
 				break;
 			case 5:
-				memory_profile();
+				profile_deletion_random();
 				break;
 			case 6:
+				profile_search_random();
+				break;
+			case 7:
+				profile_search_comparisons_random();
+				break;
+			case 8:
+				memory_profile();
+				break;
+			case 9:
 				profile_comparisons();
 				break;
 			default:

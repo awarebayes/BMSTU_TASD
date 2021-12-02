@@ -25,4 +25,10 @@ void read_int(FILE *fin, FILE *fout, char *hint_msg, int *target, int *ec);
 
 uint64_t ticks(void);
 
+char *rand_string(char *str, int size);
+
+int djb2(void *data);
+
+int sdbm(void *data);
+
 #endif //LAB_06_UTIL_H

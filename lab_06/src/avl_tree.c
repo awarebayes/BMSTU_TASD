@@ -12,6 +12,7 @@
 #include "util.h"
 
 #define BUF_SIZE 2048
+#define RAND_STR_BUF_SIZE 128
 
 
 void avl_tree_delete(struct avl_node *self)
@@ -126,6 +127,14 @@ struct avl_node *avl_tree_insert(struct avl_node *self, struct avl_node *node)
 	return self;
 }
 
+
+struct avl_node *avl_tree_add(struct avl_node *self, char *key)
+{
+
+	struct avl_node *node = avl_node_new(key);
+	return avl_tree_insert(self, node);
+}
+
 struct avl_node *avl_tree_min_value(struct avl_node *self)
 {
 	struct avl_node *temp = self;
@@ -166,54 +175,63 @@ struct avl_node *avl_tree_remove(struct avl_node *self, char *key)
 	if (strcmp(key, self->data) < 0)
 		self->left = avl_tree_remove(self->left, key);
 
-	if (strcmp(key, self->data) > 0)
+	else if (strcmp(key, self->data) > 0)
 		self->right = avl_tree_remove(self->right, key);
 
 	else
 	{
-		if (self->left == NULL)
+		if ( (self->left == NULL) || (self->right == NULL))
 		{
-			struct avl_node *temp = self->right;
-			avl_node_delete(self);
-			return temp;
+			struct avl_node *temp = self->left ? self->left : self->right;
+			// no children
+			if (temp == NULL)
+			{
+				temp = self;
+				self = NULL;
+			}
+				// one child
+			else
+				*self = *avl_node_deep_copy(temp);
+			avl_node_delete(temp);
 		}
-		else if (self->right == NULL)
+		else
 		{
-			struct avl_node *temp = self->left;
-			avl_node_delete(self);
-			return temp;
+			struct avl_node *temp = avl_tree_min_value(self->right);
+			free(self->data);
+			self->data = xmalloc(sizeof(char) * strlen(temp->data) + 1);
+			strcpy(self->data, temp->data);
+			self->right = avl_tree_remove(self->right, temp->data);
 		}
-		// get minimum node
-		struct avl_node *temp = avl_tree_min_value(self->right);
-
-		free(self->data);
-		size_t new_len = strlen(temp->data) + 1;
-		self->data = xmalloc(new_len);
-		strncpy(self->data, temp->data, new_len);
-
-		self->right = avl_tree_remove(self->right, temp->data);
 	}
+
+	if (self == NULL)
+		return self;
 
 	self->height = 1 + max(avl_tree_height(self->left), avl_tree_height(self->right));
 	int balance = avl_tree_get_balance(self);
 
+	// LL case
 	if (balance > 1 && avl_tree_get_balance(self->left) >= 0)
 		return avl_tree_rotate_right(self);
 
+	// LR case
 	if (balance > 1 && avl_tree_get_balance(self->left) < 0)
 	{
 		self->left = avl_tree_rotate_left(self->left);
 		return avl_tree_rotate_right(self);
 	}
 
+	// RR
 	if (balance < -1 && avl_tree_get_balance(self->right) <= 0)
 		return avl_tree_rotate_left(self);
 
+	// RL
 	if (balance < -1 && avl_tree_get_balance(self->right) > 0)
 	{
 		self->right = avl_tree_rotate_right(self->right);
 		return avl_tree_rotate_left(self);
 	}
+
 	return self;
 }
 
@@ -275,3 +293,25 @@ int avl_tree_n_nodes(struct avl_node *self)
 		acc += avl_tree_n_nodes(self->right);
 	return acc;
 }
+
+struct avl_node *avl_tree_random(int size, char *random_word)
+{
+	int added = 0;
+	int random_word_index = rand() % size;
+	struct avl_node *tree = NULL;
+
+	char buf[RAND_STR_BUF_SIZE];
+	while (added < size)
+	{
+		rand_string(buf, RAND_STR_BUF_SIZE);
+		if (avl_tree_search(tree, buf) == NULL)
+		{
+			if (random_word_index == added)
+				strcpy(random_word, buf);
+			tree = avl_tree_add(tree, buf);
+			added++;
+		}
+	}
+	return tree;
+}
+

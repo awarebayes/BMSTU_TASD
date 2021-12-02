@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #define BUF_SIZE 512
+#define RAND_STR_BUF_SIZE 128
 
 node *node_new(const char *value)
 {
@@ -53,7 +54,7 @@ void hash_set_delete(hash_set *self)
 	self->nodes = 0;
 }
 
-int hash_set_insert(hash_set *self, char *key)
+int hash_set_add(hash_set *self, char *key)
 {
 	int hash = self->hash_func(key) % self->capacity;
 	node *to_add = node_new(key);
@@ -75,7 +76,7 @@ int hash_set_insert(hash_set *self, char *key)
 	return n_comparisons;
 }
 
-node *hash_set_find(hash_set *self, char *key)
+node *hash_set_search(hash_set *self, char *key)
 {
 	int hash = self->hash_func(key) % self->capacity;
 	node *current = self->nodes[hash];
@@ -88,6 +89,19 @@ node *hash_set_find(hash_set *self, char *key)
 	return NULL;
 }
 
+node *hash_set_search_cmp_log(hash_set *self, char *key, int *cmp)
+{
+	int hash = self->hash_func(key) % self->capacity;
+	node *current = self->nodes[hash];
+	while (current != NULL)
+	{
+		(*cmp)++;
+		if (strcmp(current->data, key) == 0)
+			return current;
+		current = current->next;
+	}
+	return NULL;
+}
 
 node *hash_set_remove(hash_set *self, char *key)
 {
@@ -141,7 +155,7 @@ hash_set hash_set_read(char *cwd, char *file_name_no_ext, size_t capacity, hash_
 	{
 		if (fscanf(f, "%s", temp) != 1)
 			local_ec = input_err;
-		hash_set_insert(&self, temp);
+		hash_set_add(&self, temp);
 	}
 	fclose(f);
 	if (ec)
@@ -149,3 +163,23 @@ hash_set hash_set_read(char *cwd, char *file_name_no_ext, size_t capacity, hash_
 	return self;
 }
 
+hash_set hash_set_random(int size, int capacity, char *random_word)
+{
+	int added = 0;
+	hash_set hset = hash_set_new(capacity, sdbm);
+	int random_word_idx = rand() % size;
+
+	char buf[RAND_STR_BUF_SIZE];
+	while (added < size)
+	{
+		rand_string(buf, RAND_STR_BUF_SIZE);
+		if (hash_set_search(&hset, buf) == NULL)
+		{
+			if (random_word_idx == added)
+				strcpy(random_word, buf);
+			hash_set_add(&hset, buf);
+			added++;
+		}
+	}
+	return hset;
+}

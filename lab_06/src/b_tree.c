@@ -12,6 +12,7 @@
 #include "b_tree.h"
 
 #define BUF_SIZE 2048
+#define RAND_STR_BUF_SIZE 128
 
 
 void b_tree_delete(struct b_node *self)
@@ -45,6 +46,12 @@ struct b_node *b_tree_insert(struct b_node *self, struct b_node *node)
 	return self;
 }
 
+struct b_node *b_tree_add(struct b_node *self, char *key)
+{
+	struct b_node *to_add = b_node_new(key);
+	return b_tree_insert(self, to_add);
+}
+
 struct b_node *b_tree_search(struct b_node *self, const char *data)
 {
 	if (self == NULL)
@@ -57,6 +64,21 @@ struct b_node *b_tree_search(struct b_node *self, const char *data)
 		return b_tree_search(self->left, data);
 	else
 		return b_tree_search(self->right, data);
+}
+
+struct b_node *b_tree_search_cmp_log(struct b_node *self, const char *data, int *comparisons)
+{
+	if (self == NULL)
+		return NULL;
+
+	(*comparisons)++;
+	int cmp = strcmp(self->data, data);
+	if (cmp == 0)
+		return self;
+	else if (cmp > 0)
+		return b_tree_search_cmp_log(self->left, data, comparisons);
+	else
+		return b_tree_search_cmp_log(self->right, data, comparisons);
 }
 
 struct b_node *b_tree_min_value(struct b_node *self)
@@ -155,3 +177,23 @@ struct b_node *b_tree_read(char *cwd, char *file_name_no_ext, int *ec)
 }
 
 
+struct b_node *b_tree_random(int size, char *random_word)
+{
+	int added = 0;
+	struct b_node *tree = NULL;
+	int random_word_idx = rand() % size;
+
+	char buf[RAND_STR_BUF_SIZE];
+	while (added < size)
+	{
+		rand_string(buf, RAND_STR_BUF_SIZE);
+		if (b_tree_search(tree, buf) == NULL)
+		{
+			if (random_word_idx == added)
+				strcpy(random_word, buf);
+			tree = b_tree_add(tree, buf);
+			added++;
+		}
+	}
+	return tree;
+}

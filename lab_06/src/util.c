@@ -61,3 +61,39 @@ uint64_t ticks(void)
 	__asm__ __volatile__ ("rdtsc" : "=A" (tmp));
 	return tmp;
 }
+
+char *rand_string(char *str, int size)
+{
+	const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJK...";
+	if (size) {
+		--size;
+		for (int n = 0; n < size; n++) {
+			int key = rand() % (int) (sizeof charset - 1);
+			str[n] = charset[key];
+		}
+		str[size] = '\0';
+	}
+	return str;
+}
+
+// hash function: http://www.cse.yorku.ca/~oz/hash.html#djb2
+int djb2(void *data)
+{
+	unsigned char *str = data;
+	int hash = 5381;
+	int c;
+	while ((c = *str++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	return hash;
+}
+
+// hash function: http://www.cse.yorku.ca/~oz/hash.html#sdbm
+int sdbm(void *data)
+{
+	unsigned char *str = data;
+	int hash = 0;
+	int c;
+	while ((c = *str++))
+		hash = c + (hash << 6) + (hash << 16) - hash;
+	return hash;
+}

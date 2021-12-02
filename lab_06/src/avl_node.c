@@ -20,6 +20,15 @@ struct avl_node *avl_node_new(char *data)
 
 void avl_node_delete(struct avl_node *self)
 {
-	free(self->data);
+	if (self != NULL)
+		free(self->data);
 	free(self);
+}
+
+struct avl_node *avl_node_deep_copy(struct avl_node *self)
+{
+	struct avl_node *copy = avl_node_new(self->data);
+	copy->left = self->left;
+	copy->right = self->right;
+	return copy;
 }
