@@ -53,7 +53,7 @@ int get_choice(int argc, char **argv)
 	return choice;
 }
 
-void profile_deletion(struct b_node *btree, struct avl_node *avl, hash_set hset)
+void profile_deletion(struct b_node *btree, struct avl_node *avl, hash_set *hset)
 {
 	uint64_t (*time_func)(void) = ticks;
 	uint64_t start = 0, end = 0;
@@ -70,21 +70,19 @@ void profile_deletion(struct b_node *btree, struct avl_node *avl, hash_set hset)
 	}
 
 	mean = 0;
-	for (int j = 0; j < TIMES; j++)
+	for (int j = 0; j < 1; j++)
 	{
 		start = time_func();
 		btree = b_tree_remove(btree, word_to_delete);
 		end = time_func();
 		mean += end - start;
-		struct b_node *node_new = b_node_new(word_to_delete);
-		btree = b_tree_insert(btree, node_new);
 	}
 
-	printf("Mean binary tree deletion: %lu\n", mean / TIMES);
+	printf("Mean binary tree deletion: %lu\n", mean);
 
 	int avl_nodes = avl_tree_n_nodes(avl);
 	mean = 0;
-	for (int j = 0; j < TIMES; j++)
+	for (int j = 0; j < 1; j++)
 	{
 		start = time_func();
 		avl = avl_tree_remove(avl, word_to_delete);
@@ -92,27 +90,37 @@ void profile_deletion(struct b_node *btree, struct avl_node *avl, hash_set hset)
 		mean += end - start;
 		avl_tree_assert_valid(avl);
 		int new_nodes = avl_tree_n_nodes(avl);
-		assert(new_nodes == avl_nodes - 1);
-		struct avl_node *node_new = avl_node_new(word_to_delete);
-		avl = avl_tree_insert(avl, node_new);
-		avl_tree_assert_valid(avl);
-		assert(avl_tree_n_nodes(avl) == avl_nodes);
 	}
 
-	printf("Mean avl tree deletion: %lu\n", mean / TIMES);
+	printf("Mean avl tree deletion: %lu\n", mean);
+
+	int n_cmp = 0;
+	int hash_set_thresh = 10;
+	read_int(stdin, stdout, "Hash set threshold: ", &hash_set_thresh, NULL);
+
+	int x = 1;
+	while (1)
+	{
+		int prime = 6 * (x++) + 1;
+		hash_set_search_cmp_log(hset, word_to_delete, &n_cmp);
+		if (n_cmp > hash_set_thresh)
+			break;
+		hash_set_delete(hset);
+		printf("Resized with capacity %d\n", prime);
+		*hset = hash_set_read("./res/", "input.txt", prime, sdbm, NULL);
+	}
 
 	mean = 0;
-	for (int j = 0; j < TIMES; j++)
+	for (int j = 0; j < 1; j++)
 	{
 		start = time_func();
-		node *word = hash_set_remove(&hset, word_to_delete);
+		node *word = hash_set_remove(hset, word_to_delete);
 		end = time_func();
 		mean += end - start;
 		node_delete(word);
-		hash_set_add(&hset, word_to_delete);
 	}
 
-	printf("Mean hash set deletion: %lu\n", mean / TIMES);
+	printf("Mean hash set deletion: %lu\n", mean);
 }
 
 
@@ -165,7 +173,7 @@ void profile_deletion_random()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			hash_set hset = hash_set_random(size, 100, word_to_delete);
+			hash_set hset = hash_set_random(size, 15, word_to_delete);
 			start = time_func();
 			node *word = hash_set_remove(&hset, word_to_delete);
 			end = time_func();
@@ -180,7 +188,7 @@ void profile_deletion_random()
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
-			hash_set hset = hash_set_random(size, 1000, word_to_delete);
+			hash_set hset = hash_set_random(size, 30, word_to_delete);
 			start = time_func();
 			node *word = hash_set_remove(&hset, word_to_delete);
 			end = time_func();
@@ -361,7 +369,7 @@ void profile_search_comparisons_random()
 			FILE *file = tmpfile();
 			nosql_random(file, size, word_to_delete);
 			rewind(file);
-			int search_res = nosql_search(file, word_to_delete,  &cmps, NULL);
+			int search_res = nosql_search(file, word_to_delete, &cmps, NULL);
 			mean += cmps;
 			fclose(file);
 		}
@@ -427,6 +435,43 @@ void profile_comparisons()
 	}
 }
 
+void delete_word(struct b_node *btree, struct avl_node *avl, hash_set *hset)
+{
+	int ec = 0;
+	char word_to_delete[BUF_SIZE] = { 0 };
+	printf("Word to delete:\n");
+	read_str(stdin, stdout, "", word_to_delete, &ec);
+
+	int n_cmp = 0;
+	int hash_set_thresh = 10;
+	read_int(stdin, stdout, "Hash set threshold: ", &hash_set_thresh, NULL);
+
+
+	int x = 0;
+	while (1)
+	{
+		n_cmp = 0;
+		int prime = 6 * (x++) + 1;
+		hash_set_search_cmp_log(hset, word_to_delete, &n_cmp);
+		if (n_cmp <= hash_set_thresh)
+			break;
+		hash_set_delete(hset);
+		printf("Resized with capacity %d\n", prime);
+		*hset = hash_set_read("./res/", "input.txt", prime, sdbm, NULL);
+	}
+
+	if (b_tree_search(btree, word_to_delete) != NULL)
+	{
+		btree = b_tree_remove(btree, word_to_delete);
+		avl = avl_tree_remove(avl, word_to_delete);
+		node *word = hash_set_remove(hset, word_to_delete);
+		node_delete(word);
+		printf("Word was successfully deleted!\n");
+	}
+	else
+		printf("Word was not found!\n");
+}
+
 void main_loop()
 {
 	int choice = 0;
@@ -441,7 +486,7 @@ void main_loop()
 			"[Profile]  - memory profile",
 	};
 
-	size_t hash_set_size = 30;
+	size_t hash_set_size = 1;
 	hash_func_t hash_funcs[] = { djb2, sdbm };
 	int hash_func_idx = 1;
 
@@ -472,18 +517,7 @@ void main_loop()
 		switch (choice)
 		{
 			case 1:
-				printf("Word to delete:\n");
-				read_str(stdin, stdout, "", word_to_delete, &ec);
-				if (b_tree_search(btree, word_to_delete) != NULL)
-				{
-					btree = b_tree_remove(btree, word_to_delete);
-					avl = avl_tree_remove(avl, word_to_delete);
-					node *word = hash_set_remove(&hset, word_to_delete);
-					node_delete(word);
-					printf("Word was successfully deleted!\n");
-				}
-				else
-					printf("Word was not found!\n");
+				delete_word(btree, avl, &hset);
 				break;
 			case 2:
 				read_int(stdin, stdout, "Show null children? (0/1): ", &show_null_children, &ec);
@@ -512,7 +546,7 @@ void main_loop()
 				break;
 
 			case 4:
-				profile_deletion(btree, avl, hset);
+				profile_deletion(btree, avl, &hset);
 				break;
 			case 5:
 				profile_deletion_random();
