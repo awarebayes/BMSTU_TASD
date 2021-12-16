@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #define BUF_SIZE 512
-#define RAND_STR_BUF_SIZE 128
+#define RAND_STR_BUF_SIZE 16
 
 node *node_new(const char *value)
 {

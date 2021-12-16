@@ -202,7 +202,7 @@ void profile_search_random()
 
 	printf("Starting to profile search...\n");
 
-	uint32_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
+	uint32_t sizes[] = { 10, 100, 500 }; // , 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
 	printf("|%16s|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
 	       "hash_set (1000)", "file");
@@ -353,7 +353,7 @@ void profile_search_comparisons_random()
 
 		printf("|%16lu", mean / TIMES);
 
-
+		/*
 		mean = 0;
 		for (int j = 0; j < TIMES; j++)
 		{
@@ -366,29 +366,33 @@ void profile_search_comparisons_random()
 			fclose(file);
 		}
 		printf("|%16lu|\n", mean / TIMES);
+		 */
 	}
 }
 
 void memory_profile()
 {
-	printf("Memory profile:\n");
+	printf("Memory profile (holding string of 64 chars):\n");
 	size_t sizes[] = { 10, 100, 500, 1000, 5000, 10000 };
 	int n_sizes = sizeof(sizes) / sizeof(sizes[0]);
-	printf("|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
-	       "hash_set (1000)");
+	printf("|%16s|%16s|%16s|%16s|%16s|%16s|\n", "size", "btree", "avl", "hash_set (100)",
+	       "hash_set (1000)", "file");
+	size_t string_size = 64 * sizeof(char);
 	for (int i = 0; i < n_sizes; i++)
 	{
 		size_t size = sizes[i];
-		size_t b_tree_size = sizeof(struct b_node) * size;
-		size_t avl_tree_size = sizeof(struct avl_node) * size;
-		size_t hash_set_size1 = sizeof(node) * size + sizeof(hash_set) + sizeof(node *) * 100;
-		size_t hash_set_size2 = sizeof(node) * size + sizeof(hash_set) + sizeof(node *) * 1000;
+		size_t b_tree_size = (sizeof(struct b_node) + string_size) * size;
+		size_t avl_tree_size = (string_size + sizeof(struct avl_node)) * size;
+		size_t hash_set_size1 = (sizeof(node) + string_size) * size + sizeof(hash_set) + sizeof(node *) * 100;
+		size_t hash_set_size2 = (sizeof(node) + string_size) * size + sizeof(hash_set) + sizeof(node *) * 1000;
+		size_t file_size = string_size * size;
 
 		printf("|%16ld", size);
 		printf("|%16ld", b_tree_size);
 		printf("|%16ld", avl_tree_size);
 		printf("|%16ld", hash_set_size1);
-		printf("|%16ld|\n", hash_set_size2);
+		printf("|%16ld", hash_set_size2);
+		printf("|%16ld|\n", file_size);
 
 	}
 }
